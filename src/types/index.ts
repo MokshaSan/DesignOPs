@@ -148,6 +148,21 @@ export interface Property {
   engagementScore: number;
 }
 
+export type ServiceKind = "cleaning" | "maintenance" | "moving";
+
+export type ServiceRequestStatus = "pending" | "scheduled" | "in-progress" | "completed";
+
+export interface ServiceRequest {
+  id: string;
+  unitId: string;
+  residentName: string;
+  kind: ServiceKind;
+  requestedAt: string;
+  scheduledFor: string;
+  notes?: string;
+  status: ServiceRequestStatus;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";

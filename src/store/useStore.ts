@@ -11,6 +11,7 @@ import type {
   ResidentTier,
   Role,
   Scene,
+  ServiceRequest,
   VisitorRequest,
 } from "@/types";
 import {
@@ -23,6 +24,7 @@ import {
   SEED_MAINTENANCE,
   SEED_NOTIFICATIONS,
   SEED_SCENES,
+  SEED_SERVICE_REQUESTS,
   SEED_VISITORS,
 } from "@/data/seed";
 
@@ -39,6 +41,7 @@ interface AppState {
   notifications: AppNotification[];
   maintenance: MaintenanceItem[];
   alerts: AlertItem[];
+  serviceRequests: ServiceRequest[];
   floorUnits: FloorPlanUnit[];
   floorAmenities: FloorPlanAmenity[];
   activityLog: { id: string; text: string; time: string }[];
@@ -70,6 +73,7 @@ interface AppState {
 
   acknowledgeAlert: (id: string) => void;
   updateMaintenanceStatus: (id: string, status: MaintenanceItem["status"]) => void;
+  updateServiceRequestStatus: (id: string, status: ServiceRequest["status"]) => void;
 
   addFloorUnit: (unit: Omit<FloorPlanUnit, "id">) => void;
   updateFloorUnit: (id: string, patch: Partial<FloorPlanUnit>) => void;
@@ -103,6 +107,7 @@ export const useStore = create<AppState>()(
       notifications: SEED_NOTIFICATIONS,
       maintenance: SEED_MAINTENANCE,
       alerts: SEED_ALERTS,
+      serviceRequests: SEED_SERVICE_REQUESTS,
       floorUnits: SEED_FLOOR_UNITS,
       floorAmenities: SEED_FLOOR_AMENITIES,
       activityLog: [
@@ -184,6 +189,9 @@ export const useStore = create<AppState>()(
 
       updateMaintenanceStatus: (id, status) =>
         set((s) => ({ maintenance: s.maintenance.map((m) => (m.id === id ? { ...m, status } : m)) })),
+
+      updateServiceRequestStatus: (id, status) =>
+        set((s) => ({ serviceRequests: s.serviceRequests.map((r) => (r.id === id ? { ...r, status } : r)) })),
 
       addFloorUnit: (unit) =>
         set((s) => {

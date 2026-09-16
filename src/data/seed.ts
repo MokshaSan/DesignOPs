@@ -10,6 +10,7 @@ import type {
   Property,
   ResidentTier,
   Scene,
+  ServiceRequest,
   Unit,
   VisitorRequest,
 } from "@/types";
@@ -294,6 +295,16 @@ export const SEED_FLOOR_UNITS: FloorPlanUnit[] = (() => {
   }
   return units;
 })();
+
+export const SEED_SERVICE_REQUESTS: ServiceRequest[] = [
+  { id: "sr1", unitId: "12A", residentName: "John Perera", kind: "cleaning", requestedAt: "Today, 09:15", scheduledFor: "Today, 2:00 PM", notes: "Standard clean of 2BR unit.", status: "pending" },
+  { id: "sr2", unitId: "8F", residentName: "Amara Silva", kind: "maintenance", requestedAt: "Today, 08:40", scheduledFor: "Tomorrow, 10:00 AM", notes: "AC not cooling below 26°C.", status: "pending" },
+  { id: "sr3", unitId: "18B", residentName: "Saman Liyanage", kind: "moving", requestedAt: "Yesterday, 17:30", scheduledFor: "Sat, 9:00 AM", notes: "Move-in — full coordination with front desk.", status: "scheduled" },
+  { id: "sr4", unitId: "4C", residentName: "Ravi Perera", kind: "cleaning", requestedAt: "Today, 07:20", scheduledFor: "Today, 4:00 PM", notes: "Deep clean, 1BR balcony unit.", status: "pending" },
+  { id: "sr5", unitId: "9D", residentName: "Nadia Fernando", kind: "maintenance", requestedAt: "Yesterday, 14:05", scheduledFor: "Today, 11:30 AM", notes: "Kitchen sink leak under counter.", status: "in-progress" },
+  { id: "sr6", unitId: "14F", residentName: "Kavin Raj", kind: "moving", requestedAt: "3 days ago", scheduledFor: "Sun, 1:00 PM", notes: "Move-out inspection + freight elevator booking.", status: "pending" },
+  { id: "sr7", unitId: "3C", residentName: "Meera Jayawardena", kind: "maintenance", requestedAt: "Today, 10:02", scheduledFor: "Tomorrow, 3:00 PM", notes: "Smart lock battery low — replacement.", status: "pending" },
+];
 
 export const SEED_FLOOR_AMENITIES: FloorPlanAmenity[] = [
   { id: "amenity-gym", name: "Fitness Center & Gym", levelCode: "L1", hours: "5:00 AM – 11:00 PM", status: "open" },
