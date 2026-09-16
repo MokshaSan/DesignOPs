@@ -30,7 +30,7 @@ export function ResidentProfile() {
         <Avatar name={accountName} size="lg" />
         <div>
           <p className="text-lg font-semibold text-primary">{accountName}</p>
-          <p className="text-sm text-tertiary">Tower A · Unit {accountUnitId === "12A" ? "W001" : accountUnitId}</p>
+          <p className="text-sm text-tertiary">Tower A · {accountUnitId}</p>
           <Badge tone="brand" className="mt-2">
             {TIER_LABEL[residentTier]}
           </Badge>

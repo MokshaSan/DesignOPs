@@ -1,5 +1,5 @@
 import { CheckCheck } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import { useStore, useVisibleNotifications } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { getIcon } from "@/lib/icons";
@@ -15,7 +15,8 @@ const CATEGORY_TONE = {
 };
 
 export function ResidentNotifications() {
-  const { notifications, markNotificationRead, markAllNotificationsRead } = useStore();
+  const { markNotificationRead, markAllNotificationsRead } = useStore();
+  const notifications = useVisibleNotifications();
 
   return (
     <div className="space-y-6">

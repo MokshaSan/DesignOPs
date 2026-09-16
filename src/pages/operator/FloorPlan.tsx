@@ -490,7 +490,7 @@ export function OperatorFloorPlan() {
                   className={inputCls}
                   value={unitForm.label}
                   onChange={(e) => setUnitForm({ ...unitForm, label: e.target.value })}
-                  placeholder="e.g. 12A"
+                  placeholder="e.g. W001"
                 />
               </div>
               <div>

@@ -13,10 +13,11 @@ function money(inv: Invoice) {
 }
 
 export function ResidentPayments() {
-  const { invoices, payInvoice, residentTier, logActivity } = useStore();
+  const { invoices, payInvoice, residentTier, logActivity, accountUnitId } = useStore();
   const allowed = TIER_PERMISSIONS[residentTier].billing;
-  const due = invoices.filter((i) => i.status !== "paid");
-  const paid = invoices.filter((i) => i.status === "paid");
+  const mine = invoices.filter((i) => !i.unitId || i.unitId === accountUnitId);
+  const due = mine.filter((i) => i.status !== "paid");
+  const paid = mine.filter((i) => i.status === "paid");
   const dueTotal = due.reduce((s, i) => s + i.amount, 0);
 
   if (!allowed) {
@@ -32,7 +33,7 @@ export function ResidentPayments() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Rent & payments</h1>
-        <p className="mt-1 text-sm text-tertiary">Unit 12A · The Meridian Tower A</p>
+        <p className="mt-1 text-sm text-tertiary">{accountUnitId} · The Meridian Tower A</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">

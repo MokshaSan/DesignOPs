@@ -6,6 +6,7 @@ import { VisitorPass } from "@/pages/visitor/VisitorPass";
 import { VisitorRequest } from "@/pages/visitor/VisitorRequest";
 
 import { ResidentDashboard } from "@/pages/resident/Dashboard";
+import { ResidentDevices } from "@/pages/resident/Devices";
 import { ResidentScenes } from "@/pages/resident/Scenes";
 import { ResidentAutomation } from "@/pages/resident/Automation";
 import { ResidentEnergy } from "@/pages/resident/Energy";
@@ -48,6 +49,7 @@ export function AppRoutes() {
 
       <Route path="/resident" element={<RoleLayout role="resident" />}>
         <Route index element={<ResidentDashboard />} />
+        <Route path="devices" element={<ResidentDevices />} />
         <Route path="scenes" element={<ResidentScenes />} />
         <Route path="automation" element={<ResidentAutomation />} />
         <Route path="energy" element={<ResidentEnergy />} />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Sparkles, Zap, Clock, DoorOpen, Activity } from "lucide-react";
+import { Plus, Sparkles, Zap, Clock, DoorOpen, Activity, Trash2 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
@@ -21,7 +21,7 @@ function uid() {
 }
 
 export function ResidentAutomation() {
-  const { automations, scenes, toggleAutomation, addAutomation } = useStore();
+  const { automations, scenes, toggleAutomation, addAutomation, deleteAutomation } = useStore();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [triggerType, setTriggerType] = useState<AutomationCondition["type"]>("time");
@@ -100,6 +100,16 @@ export function ResidentAutomation() {
               <div className="flex items-center gap-3">
                 <Zap size={14} className={a.enabled ? "text-brand-600" : "text-tertiary"} />
                 <Toggle checked={a.enabled} onChange={() => toggleAutomation(a.id)} aria-label={`Toggle ${a.name}`} />
+                <button
+                  type="button"
+                  aria-label={`Delete ${a.name}`}
+                  onClick={() => {
+                    if (window.confirm(`Delete automation “${a.name}”?`)) deleteAutomation(a.id);
+                  }}
+                  className="rounded-lg p-1.5 text-tertiary hover:bg-danger/10 hover:text-danger"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </Card>
           );

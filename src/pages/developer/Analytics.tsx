@@ -1,15 +1,57 @@
+import { useEffect, useState } from "react";
+import { Loader2, Sparkles } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
-import { ADOPTION_DATA, PORTFOLIO_ENERGY } from "@/data/seed";
+import { AIInsightCard } from "@/components/ai/AIInsightCard";
+import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
+import { ADOPTION_DATA, ENERGY_WEEK, PORTFOLIO_ENERGY } from "@/data/seed";
+import { useAIAnalytics } from "@/hooks/useAI";
+import { useStore } from "@/store/useStore";
 
 export function DeveloperAnalytics() {
+  const { devices, visitors, alerts } = useStore();
+  const { run, loading } = useAIAnalytics();
+  const [ai, setAi] = useState<{ headline: string; bullets: string[]; risk: string; source: string } | null>(null);
+
+  useEffect(() => {
+    void run({
+      energyWeek: ENERGY_WEEK,
+      devices: devices.map((d) => ({ name: d.name, status: d.status, unitId: d.unitId, battery: d.battery })),
+      visitors: visitors.map((v) => ({ name: v.name, status: v.status, unitId: v.unitId })),
+      alerts: alerts.filter((a) => !a.acknowledged).map((a) => ({ title: a.title, severity: a.severity })),
+    }).then((r) => r && setAi(r));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devices.length, visitors.length, alerts.length]);
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Analytics</h1>
-        <p className="mt-1 text-sm text-tertiary">Feature adoption, energy trends, and operational impact across the portfolio.</p>
+        <p className="mt-1 text-sm text-tertiary">Live Nestura AI over adoption, energy, devices, and visitor flow.</p>
       </div>
+
+      <LiveAISuggestion />
+
+      {loading && !ai && (
+        <Card className="flex items-center gap-2 text-sm text-tertiary">
+          <Loader2 size={16} className="animate-spin" /> Reading live portfolio signals…
+        </Card>
+      )}
+
+      {ai && (
+        <AIInsightCard title={`Portfolio AI · ${ai.source}`}>
+          <p className="font-medium text-primary">{ai.headline}</p>
+          <ul className="mt-2 list-disc space-y-1 pl-4">
+            {(ai.bullets || []).map((b) => (
+              <li key={b}>{b}</li>
+            ))}
+          </ul>
+          <Badge className="mt-3" tone={ai.risk === "elevated" ? "warning" : "success"}>
+            Risk {ai.risk}
+          </Badge>
+        </AIInsightCard>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
@@ -49,7 +91,9 @@ export function DeveloperAnalytics() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Operational Impact</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles size={16} /> Operational Impact
+          </CardTitle>
         </CardHeader>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl bg-surface-raised p-4">
@@ -72,7 +116,6 @@ export function DeveloperAnalytics() {
             <p className="mt-1 text-xs text-tertiary">Weekly active residents</p>
           </div>
         </div>
-        <p className="mt-4 text-[11px] text-tertiary">All figures are illustrative / simulated for this prototype.</p>
       </Card>
     </div>
   );

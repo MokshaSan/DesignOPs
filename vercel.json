@@ -1,0 +1,11 @@
+{
+  "framework": "vite",
+  "buildCommand": "npx vite build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "shared/**",
+      "maxDuration": 30
+    }
+  }
+}

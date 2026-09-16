@@ -14,7 +14,7 @@ import type { VisitorRequest } from "@/types";
 export function ResidentVisitors() {
   const { visitors, approveVisitor, rejectVisitor, addNotification, residentTier, accountUnitId, setVisitorAccess } = useStore();
   const canManage = TIER_PERMISSIONS[residentTier].access;
-  const mine = visitors.filter((v) => v.unitId === accountUnitId || v.unitId === "12A");
+  const mine = visitors.filter((v) => v.unitId === accountUnitId);
   const [showPassFor, setShowPassFor] = useState<VisitorRequest | null>(null);
   const [grantFor, setGrantFor] = useState<VisitorRequest | null>(null);
   const [grantDate, setGrantDate] = useState("");

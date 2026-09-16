@@ -28,6 +28,11 @@ export async function persistRecord(collection: string, row: { id: string }) {
   });
 }
 
+export async function deleteRecord(collection: string, id: string) {
+  if (!supabase) return;
+  await supabase.from("app_records").delete().eq("collection", collection).eq("id", id);
+}
+
 export async function fetchRecords<T extends { id: string }>(collection: string): Promise<T[]> {
   if (!supabase) return [];
   const { data, error } = await supabase.from("app_records").select("payload").eq("collection", collection);

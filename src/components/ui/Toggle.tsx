@@ -9,8 +9,8 @@ interface ToggleProps {
 }
 
 export function Toggle({ checked, onChange, size = "md", disabled, ...aria }: ToggleProps) {
-  const dims = size === "sm" ? "h-5 w-9" : "h-6 w-11";
-  const knob = size === "sm" ? "h-3.5 w-3.5" : "h-4.5 w-4.5";
+  const dims = size === "sm" ? "h-6 w-11" : "h-7 w-12";
+  const knob = size === "sm" ? "h-5 w-5" : "h-5 w-5";
   return (
     <button
       type="button"
@@ -20,19 +20,16 @@ export function Toggle({ checked, onChange, size = "md", disabled, ...aria }: To
       onClick={() => onChange(!checked)}
       className={cx(
         dims,
-        "relative inline-flex shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-50",
-        checked ? "bg-brand-600 dark:bg-brand-300" : "bg-surface-raised border border-border-strong",
+        "relative inline-flex shrink-0 items-center rounded-full border-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-50",
+        checked ? "border-violet-700 bg-[#7c3aed]" : "border-neutral-400 bg-neutral-300 dark:border-neutral-500 dark:bg-neutral-600",
       )}
       {...aria}
     >
       <span
-        className={cx(
-          knob,
-          "inline-block transform rounded-full bg-white shadow transition-transform duration-200",
-          checked ? (size === "sm" ? "translate-x-4.5" : "translate-x-6") : "translate-x-1",
-        )}
+        className={cx(knob, "inline-block rounded-full bg-white shadow-md ring-1 ring-black/10")}
         style={{
-          transform: checked ? (size === "sm" ? "translateX(18px)" : "translateX(22px)") : "translateX(2px)",
+          transform: checked ? (size === "sm" ? "translateX(22px)" : "translateX(24px)") : "translateX(2px)",
+          transition: "transform 0.2s ease",
         }}
       />
     </button>

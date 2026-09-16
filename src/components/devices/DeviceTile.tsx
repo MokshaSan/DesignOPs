@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Trash2 } from "lucide-react";
 import type { Device } from "@/types";
 import { deviceIcon } from "@/lib/icons";
 import { Toggle } from "@/components/ui/Toggle";
@@ -8,7 +9,7 @@ import { useStore } from "@/store/useStore";
 const STEP: Record<string, number> = { ac: 1, light: 10, curtain: 20 };
 
 export function DeviceTile({ device }: { device: Device }) {
-  const { toggleDevicePower, setDeviceValue } = useStore();
+  const { toggleDevicePower, setDeviceValue, deleteDevice } = useStore();
   const Icon = deviceIcon(device.kind);
   const hasSlider = ["light", "ac", "curtain"].includes(device.kind) && device.power;
   const step = STEP[device.kind] ?? 10;
@@ -19,7 +20,7 @@ export function DeviceTile({ device }: { device: Device }) {
     <motion.div
       layout
       className={cx(
-        "flex flex-col gap-3 rounded-xl2 border bg-surface p-4 shadow-soft transition-colors",
+        "flex flex-col gap-3 rounded-xl2 border bg-surface p-4 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
         device.power ? "border-brand-200 dark:border-brand-800/60" : "border-border",
       )}
     >
@@ -38,20 +39,32 @@ export function DeviceTile({ device }: { device: Device }) {
             <p className="text-xs text-tertiary">{device.room}</p>
           </div>
         </div>
-        {device.kind !== "door" && device.kind !== "sensor" && (
-          <Toggle checked={device.power} onChange={() => toggleDevicePower(device.id)} size="sm" aria-label={`Toggle ${device.name}`} />
-        )}
-        {device.kind === "door" && (
+        <div className="flex items-center gap-1.5">
+          {device.kind !== "door" && device.kind !== "sensor" && (
+            <Toggle checked={device.power} onChange={() => toggleDevicePower(device.id)} size="sm" aria-label={`Toggle ${device.name}`} />
+          )}
+          {device.kind === "door" && (
+            <button
+              onClick={() => toggleDevicePower(device.id)}
+              className={cx(
+                "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                device.power ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
+              )}
+            >
+              {device.power ? "Locked" : "Unlocked"}
+            </button>
+          )}
           <button
-            onClick={() => toggleDevicePower(device.id)}
-            className={cx(
-              "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-              device.power ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
-            )}
+            type="button"
+            aria-label={`Delete ${device.name}`}
+            onClick={() => {
+              if (window.confirm(`Remove ${device.name}? Scenes that used it will drop that step.`)) deleteDevice(device.id);
+            }}
+            className="rounded-lg p-1.5 text-tertiary hover:bg-danger/10 hover:text-danger"
           >
-            {device.power ? "Locked" : "Unlocked"}
+            <Trash2 size={14} />
           </button>
-        )}
+        </div>
       </div>
 
       {hasSlider && device.value !== undefined && (
@@ -63,7 +76,7 @@ export function DeviceTile({ device }: { device: Device }) {
             step={step}
             value={device.value}
             onChange={(e) => setDeviceValue(device.id, Number(e.target.value))}
-            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-raised accent-brand-600"
+            className="control-slider w-full"
           />
           <span className="w-12 shrink-0 text-right text-xs font-semibold tabular-nums text-secondary">
             {device.value}

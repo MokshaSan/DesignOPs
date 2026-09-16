@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send, Sparkles, X } from "lucide-react";
 import { NesturaMark } from "@/components/brand/NesturaMark";
@@ -7,29 +8,40 @@ import { useStore } from "@/store/useStore";
 import type { ChatMessage } from "@/types";
 import { cx } from "@/lib/cx";
 
-const SUGGESTIONS = ["Where's the gym?", "How do I get to the pool?", "Where is resident parking?", "Where do I collect a parcel?"];
+const RESIDENT_TIPS = ["Where's the gym?", "How do I get to the pool?", "Where is resident parking?", "Where do I collect a parcel?"];
+const VISITOR_TIPS = ["How do I get to W002?", "Where is the gym?", "Visitor parking?", "Where is the mailroom?"];
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
 }
 
 export function AIAssistantWidget() {
+  const location = useLocation();
   const role = useStore((s) => s.role);
   const accountUnitId = useStore((s) => s.accountUnitId);
   const floorAmenities = useStore((s) => s.floorAmenities);
   const floorUnits = useStore((s) => s.floorUnits);
+  const visitorMode = location.pathname.startsWith("/visitor");
+  const effectiveRole = visitorMode ? "visitor" : role;
+  const tips = visitorMode ? VISITOR_TIPS : RESIDENT_TIPS;
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: uid(),
-      role: "assistant",
-      content: "Hi, I'm Nestura — your Smart Living assistant. Ask me for directions around The Meridian, or anything about your home.",
-      time: "",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const { run, loading } = useAIAssistant();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMessages([
+      {
+        id: uid(),
+        role: "assistant",
+        content: visitorMode
+          ? "Hi — I'm Nestura. I use indoor Beacons to walk you through The Meridian. Ask how to reach a unit (W001–W003), the gym, pool, or parking."
+          : "Hi, I'm Nestura — your Smart Living assistant. Ask for Beacon directions around The Meridian, or anything about your home.",
+        time: "",
+      },
+    ]);
+  }, [visitorMode]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -40,8 +52,8 @@ export function AIAssistantWidget() {
     const userMsg: ChatMessage = { id: uid(), role: "user", content: text, time: "" };
     setMessages((m) => [...m, userMsg]);
     setInput("");
-    const result = await run(text, role, {
-      unit: accountUnitId,
+    const result = await run(text, effectiveRole, {
+      unit: visitorMode ? "lobby" : accountUnitId,
       floorPlan: { amenities: floorAmenities, units: floorUnits.slice(0, 40) },
     });
     setMessages((m) => [
@@ -49,7 +61,7 @@ export function AIAssistantWidget() {
       {
         id: uid(),
         role: "assistant",
-        content: result?.reply ?? "I'm having trouble reaching my brain right now — please try again in a moment.",
+        content: result?.reply ?? "I couldn't reach the Nestura AI service. On Vercel, set OPENAI_API_KEY in project env, then redeploy. Locally run npm run dev so /api is proxied.",
         time: "",
       },
     ]);
@@ -70,7 +82,7 @@ export function AIAssistantWidget() {
               <NesturaMark size={32} className="rounded-full bg-white/10" />
               <div className="leading-tight">
                 <p className="text-sm font-semibold">Nestura</p>
-                <p className="text-[11px] text-white/75">Smart Living Assistant</p>
+                <p className="text-[11px] text-white/75">{visitorMode ? "Visitor Beacon guide" : "Smart Living Assistant"}</p>
               </div>
               <button onClick={() => setOpen(false)} className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg hover:bg-white/15">
                 <X size={15} />
@@ -107,7 +119,7 @@ export function AIAssistantWidget() {
 
             {messages.length <= 1 && (
               <div className="flex flex-wrap gap-1.5 px-4 pb-2">
-                {SUGGESTIONS.map((s) => (
+                {tips.map((s) => (
                   <button
                     key={s}
                     onClick={() => send(s)}
@@ -129,7 +141,7 @@ export function AIAssistantWidget() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Nestura anything..."
+                placeholder={visitorMode ? "Ask for Beacon directions…" : "Ask Nestura anything..."}
                 className="h-10 flex-1 rounded-lg border border-border bg-bg px-3 text-sm text-primary placeholder:text-tertiary focus:border-brand-400 focus:outline-none"
               />
               <button

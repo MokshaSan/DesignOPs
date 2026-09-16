@@ -50,7 +50,7 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
         <div className="rounded-xl bg-surface-raised p-3">
           <p className="text-xs font-semibold text-primary">The Meridian, Tower A</p>
           <p className="mt-0.5 text-[11px] text-tertiary">
-            {role === "resident" ? `Unit ${accountUnitId}` : "Operations"} · {role === "resident" ? TIER_LABEL[residentTier] : "—"}
+            {role === "resident" ? accountUnitId : "Operations"} · {role === "resident" ? TIER_LABEL[residentTier] : "—"}
           </p>
         </div>
       </div>

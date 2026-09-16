@@ -94,3 +94,10 @@ export function useAIAutomationSuggest() {
     post<AIAutomationResult>("/api/ai/automation-suggest", { activityLog }),
   );
 }
+
+export function useAIAnalytics() {
+  return useAsync(
+    (payload: { energyWeek: unknown[]; devices: unknown[]; visitors: unknown[]; alerts: unknown[] }) =>
+      post<{ headline: string; bullets: string[]; risk: string; source: string }>("/api/ai/analytics", payload),
+  );
+}

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, IdCard, Search } from "lucide-react";
@@ -7,6 +7,7 @@ import { useStore } from "@/store/useStore";
 import { BackButton } from "@/components/ui/BackButton";
 import { NesturaLockup } from "@/components/brand/NesturaMark";
 import { Button } from "@/components/ui/Button";
+import { UNIT_HOSTS } from "@/data/demoAccounts";
 import type { VisitorRequest, VisitorType } from "@/types";
 
 const PURPOSES: { id: VisitorType; label: string; hint: string }[] = [
@@ -59,9 +60,9 @@ export function VisitorRequest() {
       id,
       name: name.trim(),
       type: purpose,
-      unitId: unit === "W001" ? "12A" : unit === "W002" ? "18B" : "8F",
+      unitId: unit,
       hostName: resident.trim(),
-      destination: `Tower A · Unit ${unit === "W001" ? "12A" : unit === "W002" ? "18B" : "8F"}`,
+      destination: `Tower A · ${unit}`,
       purpose: PURPOSES.find((p) => p.id === purpose)?.label,
       requestedFor: date,
       windowStart: start,
@@ -82,8 +83,9 @@ export function VisitorRequest() {
     addNotification({
       icon: "Users",
       title: "Visitor request received",
-      body: `${name.trim()} · ID ${id} asked to visit ${unit} ${start}–${end}.`,
+      body: `${name.trim()} · ID ${id} asked to visit ${unit} ${start}–${end}. Every household member on ${unit} can grant this.`,
       category: "visitor",
+      unitId: unit,
     });
     setSubmitted(request);
   }
@@ -185,7 +187,15 @@ export function VisitorRequest() {
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-medium text-white/70">Unit</label>
-                    <select value={unit} onChange={(e) => setUnit(e.target.value)} className={inputClass}>
+                    <select
+                      value={unit}
+                      onChange={(e) => {
+                        const next = e.target.value;
+                        setUnit(next);
+                        setResident(UNIT_HOSTS[next] ?? resident);
+                      }}
+                      className={inputClass}
+                    >
                       <option className="text-neutral-900" value="W001">W001</option>
                       <option className="text-neutral-900" value="W002">W002</option>
                       <option className="text-neutral-900" value="W003">W003</option>

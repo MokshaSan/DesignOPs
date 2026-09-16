@@ -66,7 +66,7 @@ export function DeveloperDashboard() {
             Open ledger
           </Link>
         </CardHeader>
-        <p className="text-sm text-secondary">Rent and service-charge status for occupied units, including Meridian 12A.</p>
+        <p className="text-sm text-secondary">Rent and service-charge status for occupied units, including W001–W003.</p>
       </Card>
 
       <Card>

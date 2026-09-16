@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, Sparkles } from "lucide-react";
+import { Play, Sparkles, Trash2 } from "lucide-react";
 import type { Scene } from "@/types";
 import { getIcon } from "@/lib/icons";
 import { Button } from "@/components/ui/Button";
@@ -8,7 +8,7 @@ import { useStore } from "@/store/useStore";
 import { cx } from "@/lib/cx";
 
 export function SceneCard({ scene }: { scene: Scene }) {
-  const { runScene, lastActivatedScene } = useStore();
+  const { runScene, lastActivatedScene, deleteScene } = useStore();
   const Icon = getIcon(scene.icon);
   const justRan = lastActivatedScene === scene.id;
 
@@ -43,9 +43,22 @@ export function SceneCard({ scene }: { scene: Scene }) {
       </div>
       <div className="mt-4 flex items-center justify-between">
         <span className="text-[11px] text-tertiary">{scene.lastRun ? `Last run: ${scene.lastRun}` : "Never run"}</span>
-        <Button size="sm" onClick={() => runScene(scene.id)}>
-          <Play size={13} /> Run
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-tertiary hover:text-danger"
+            aria-label={`Delete ${scene.name}`}
+            onClick={() => {
+              if (window.confirm(`Delete scene “${scene.name}”?`)) deleteScene(scene.id);
+            }}
+          >
+            <Trash2 size={14} />
+          </Button>
+          <Button size="sm" onClick={() => runScene(scene.id)}>
+            <Play size={13} /> Run
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

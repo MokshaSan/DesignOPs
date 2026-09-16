@@ -8,7 +8,7 @@ import { DeviceTile } from "@/components/devices/DeviceTile";
 import { getIcon } from "@/lib/icons";
 import { SimulateAlertButton } from "@/components/alerts/SimulateAlertButton";
 import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
-import { useStore, useResidentDevices } from "@/store/useStore";
+import { useStore, useResidentDevices, useResidentScenes } from "@/store/useStore";
 import { Badge } from "@/components/ui/Badge";
 
 function greeting() {
@@ -19,14 +19,15 @@ function greeting() {
 }
 
 export function ResidentDashboard() {
-  const { scenes, activityLog, visitors, runScene, accountName, accountUnitId } = useStore();
+  const { activityLog, visitors, runScene, accountName, accountUnitId } = useStore();
   const devices = useResidentDevices();
+  const scenes = useResidentScenes();
 
   const lights = devices.filter((d) => d.kind === "light");
   const ac = devices.find((d) => d.kind === "ac" && d.room === "Living Room");
   const door = devices.find((d) => d.kind === "door");
   const lightsOn = lights.filter((l) => l.power).length;
-  const livingRoomDevices = devices.filter((d) => ["Living Room"].includes(d.room)).slice(0, 4);
+  const quickDevices = devices.filter((d) => d.kind !== "sensor").slice(0, 8);
   const pendingVisitor = visitors.find((v) => v.status === "pending" && v.unitId === accountUnitId);
 
   const energyToday = useMemo(() => 4.2, []);
@@ -35,7 +36,7 @@ export function ResidentDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-tertiary">Tower A · Unit {accountUnitId === "12A" ? "W001" : accountUnitId}</p>
+          <p className="text-sm font-medium text-tertiary">Tower A · {accountUnitId}</p>
           <h1 className="text-2xl font-bold text-primary md:text-3xl">
             {greeting()}, {accountName.split(" ")[0]}
           </h1>
@@ -76,16 +77,26 @@ export function ResidentDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Quick Controls · Living Room</CardTitle>
-              <Link to="/resident/access" className="flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">
+              <CardTitle>Quick Controls</CardTitle>
+              <Link to="/resident/devices" className="flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">
                 All devices <ChevronRight size={13} />
               </Link>
             </CardHeader>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {livingRoomDevices.map((d) => (
-                <DeviceTile key={d.id} device={d} />
-              ))}
-            </div>
+            {quickDevices.length === 0 ? (
+              <p className="text-sm text-tertiary">
+                No devices in {accountUnitId}.{" "}
+                <Link to="/resident/devices" className="font-medium text-brand-700 hover:underline dark:text-brand-400">
+                  Add lights, AC, or locks
+                </Link>
+                .
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {quickDevices.map((d) => (
+                  <DeviceTile key={d.id} device={d} />
+                ))}
+              </div>
+            )}
           </Card>
 
           <Card>

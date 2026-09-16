@@ -20,27 +20,12 @@ import type {
   TicketStatus,
   VisitorRequest,
 } from "@/types";
-import {
-  CURRENT_UNIT,
-  SEED_ALERTS,
-  SEED_AUTOMATIONS,
-  SEED_BOOKINGS,
-  SEED_DEVICES,
-  SEED_FLOOR_AMENITIES,
-  SEED_FLOOR_UNITS,
-  SEED_INVOICES,
-  SEED_MAINTENANCE,
-  SEED_NOTICES,
-  SEED_NOTIFICATIONS,
-  SEED_SCENES,
-  SEED_SERVICE_REQUESTS,
-  SEED_TICKETS,
-  SEED_VISITORS,
-} from "@/data/seed";
-import { persistRecord } from "@/lib/persist";
+import { persistRecord, deleteRecord } from "@/lib/persist";
 import { persistVisitorRequest } from "@/lib/visitors";
 import { useToastStore } from "@/store/toastStore";
 import { type DemoAccount } from "@/data/demoAccounts";
+import { canonicalUnitId, HOME_UNITS } from "@/lib/units";
+import { createHomeDevices, CURRENT_UNIT, SEED_ALERTS, SEED_AUTOMATIONS, SEED_BOOKINGS, SEED_DEVICES, SEED_FLOOR_AMENITIES, SEED_FLOOR_UNITS, SEED_INVOICES, SEED_MAINTENANCE, SEED_NOTICES, SEED_NOTIFICATIONS, SEED_SCENES, SEED_SERVICE_REQUESTS, SEED_TICKETS, SEED_VISITORS } from "@/data/seed";
 
 type Theme = "light" | "dark";
 
@@ -78,6 +63,13 @@ interface AppState {
 
   toggleDevicePower: (id: string) => void;
   setDeviceValue: (id: string, value: number) => void;
+  addDevice: (device: Omit<Device, "id" | "lastHeartbeat" | "status" | "health"> & Partial<Device>) => void;
+  updateDevice: (id: string, patch: Partial<Device>) => void;
+  deleteDevice: (id: string) => void;
+  setUnitDevicesPower: (unitId: string, power: boolean) => void;
+  ensureHomeKits: () => void;
+  deleteScene: (id: string) => void;
+  deleteAutomation: (id: string) => void;
 
   runScene: (sceneId: string) => void;
   addScene: (scene: Scene) => void;
@@ -157,24 +149,27 @@ export const useStore = create<AppState>()(
         { id: uid("log"), text: "Front door unlocked", time: "18:24" },
       ],
       lastActivatedScene: null,
-      accountKey: "owner",
+      accountKey: "w001-owner",
       accountName: "John Perera",
       accountEmail: "john.owner@example.com",
-      accountUnitId: "12A",
+      accountUnitId: "W001",
 
       setTheme: (t) => set({ theme: t }),
       toggleTheme: () => set({ theme: get().theme === "light" ? "dark" : "light" }),
       setRole: (r) => set({ role: r }),
       setResidentTier: (t) => set({ residentTier: t }),
-      setAccount: (account) =>
+      setAccount: (account) => {
+        const unitId = canonicalUnitId(account.unitId);
         set({
           accountKey: account.key,
           accountName: account.name,
           accountEmail: account.email,
-          accountUnitId: account.unitId,
+          accountUnitId: unitId,
           role: account.role,
           residentTier: account.tier ?? get().residentTier,
-        }),
+        });
+        get().ensureHomeKits();
+      },
       applyRemoteCollection: (collection, rows, replace = false) => {
         if (!rows.length && !replace) return;
         const mapKey: Record<string, keyof AppState> = {
@@ -194,52 +189,155 @@ export const useStore = create<AppState>()(
         };
         const key = mapKey[collection];
         if (!key) return;
+        const normalized =
+          collection === "devices"
+            ? rows.map((row) => {
+                const d = row as Device;
+                return { ...d, unitId: canonicalUnitId(d.unitId) };
+              })
+            : rows;
         set((s) => {
-          if (replace) return { [key]: rows } as Partial<AppState>;
+          if (replace) return { [key]: normalized } as Partial<AppState>;
           const current = (s[key] as { id: string }[]) ?? [];
           const merged = new Map(current.map((row) => [row.id, row]));
-          rows.forEach((row) => merged.set(row.id, row));
+          normalized.forEach((row) => merged.set(row.id, row));
           return { [key]: Array.from(merged.values()) } as Partial<AppState>;
         });
       },
 
-      toggleDevicePower: (id) =>
+      toggleDevicePower: (id) => {
         set((s) => ({
           devices: s.devices.map((d) => (d.id === id ? { ...d, power: !d.power, lastHeartbeat: "just now" } : d)),
-        })),
+        }));
+        const row = get().devices.find((d) => d.id === id);
+        if (row) void persistRecord("devices", row);
+      },
 
-      setDeviceValue: (id, value) =>
+      setDeviceValue: (id, value) => {
         set((s) => ({
           devices: s.devices.map((d) => (d.id === id ? { ...d, value, lastHeartbeat: "just now" } : d)),
-        })),
+        }));
+        const row = get().devices.find((d) => d.id === id);
+        if (row) void persistRecord("devices", row);
+      },
+
+      addDevice: (input) => {
+        const unitId = canonicalUnitId(input.unitId || get().accountUnitId);
+        const row: Device = {
+          status: "online",
+          health: 100,
+          power: false,
+          lastHeartbeat: "just now",
+          ...input,
+          id: input.id || `dev-${Math.random().toString(36).slice(2, 8)}`,
+          unitId,
+        };
+        set((s) => ({ devices: [row, ...s.devices] }));
+        void persistRecord("devices", row);
+        get().logActivity(`Added ${row.name} to ${unitId}`);
+      },
+
+      updateDevice: (id, patch) => {
+        set((s) => ({
+          devices: s.devices.map((d) => (d.id === id ? { ...d, ...patch, lastHeartbeat: "just now" } : d)),
+        }));
+        const row = get().devices.find((d) => d.id === id);
+        if (row) void persistRecord("devices", row);
+      },
+
+      deleteDevice: (id) => {
+        const row = get().devices.find((d) => d.id === id);
+        set((s) => ({
+          devices: s.devices.filter((d) => d.id !== id),
+          scenes: s.scenes.map((sc) => ({ ...sc, actions: sc.actions.filter((a) => a.deviceId !== id) })),
+        }));
+        void deleteRecord("devices", id);
+        if (row) get().logActivity(`Removed ${row.name}`);
+      },
+
+      setUnitDevicesPower: (unitId, power) => {
+        const unit = canonicalUnitId(unitId);
+        set((s) => ({
+          devices: s.devices.map((d) =>
+            d.unitId === unit && d.kind !== "sensor" && d.kind !== "door" ? { ...d, power, lastHeartbeat: "just now" } : d,
+          ),
+        }));
+        get()
+          .devices.filter((d) => d.unitId === unit)
+          .forEach((d) => void persistRecord("devices", d));
+      },
+
+      ensureHomeKits: () => {
+        const extra: Device[] = [];
+        const mapped = get().devices.map((d) => ({ ...d, unitId: canonicalUnitId(d.unitId) || d.unitId }));
+        for (const unit of HOME_UNITS) {
+          if (!mapped.some((d) => d.unitId === unit)) extra.push(...createHomeDevices(unit));
+        }
+        set({
+          devices: extra.length ? [...mapped, ...extra] : mapped,
+          accountUnitId: canonicalUnitId(get().accountUnitId),
+        });
+        extra.forEach((d) => void persistRecord("devices", d));
+      },
+
+      deleteScene: (id) => {
+        set((s) => ({ scenes: s.scenes.filter((sc) => sc.id !== id) }));
+        void deleteRecord("scenes", id);
+      },
+      deleteAutomation: (id) => {
+        set((s) => ({ automations: s.automations.filter((a) => a.id !== id) }));
+        void deleteRecord("automations", id);
+      },
 
       runScene: (sceneId) => {
         const scene = get().scenes.find((s) => s.id === sceneId);
         if (!scene) return;
+        const unitId = get().accountUnitId;
+        const role = get().role;
+        let matched = 0;
+        const devices = get().devices.map((d) => {
+          if (role === "resident" && unitId && d.unitId !== unitId) return d;
+          const action = scene.actions.find(
+            (a) => a.deviceId === d.id || (a.deviceName === d.name && a.kind === d.kind),
+          );
+          if (!action) return d;
+          matched += 1;
+          return {
+            ...d,
+            power: action.power ?? d.power,
+            value: action.value ?? d.value,
+            lastHeartbeat: "just now",
+          };
+        });
         set((s) => ({
-          devices: s.devices.map((d) => {
-            const action = scene.actions.find((a) => a.deviceId === d.id);
-            if (!action) return d;
-            return {
-              ...d,
-              power: action.power ?? d.power,
-              value: action.value ?? d.value,
-              lastHeartbeat: "just now",
-            };
-          }),
+          devices,
           scenes: s.scenes.map((sc) => (sc.id === sceneId ? { ...sc, lastRun: `Today, ${nowLabel()}` } : sc)),
           lastActivatedScene: sceneId,
         }));
         get().logActivity(`${scene.name} activated`);
         scene.actions.forEach((a) => get().logActivity(`${a.deviceName} → ${a.action}`));
+        useToastStore.getState().pushToast({
+          title: scene.name,
+          body: matched
+            ? `Applied to ${matched} device${matched === 1 ? "" : "s"} in ${unitId || "this home"}.`
+            : "No devices in this unit matched the scene. Recreate it with Create scene.",
+          tone: matched ? "success" : "warning",
+        });
       },
 
-      addScene: (scene) => set((s) => ({ scenes: [scene, ...s.scenes] })),
+      addScene: (scene) => {
+        const row = { ...scene, unitId: scene.unitId || get().accountUnitId };
+        set((s) => ({ scenes: [row, ...s.scenes] }));
+        void persistRecord("scenes", row);
+      },
 
       toggleAutomation: (id) =>
         set((s) => ({ automations: s.automations.map((a) => (a.id === id ? { ...a, enabled: !a.enabled } : a)) })),
 
-      addAutomation: (a) => set((s) => ({ automations: [a, ...s.automations] })),
+      addAutomation: (a) => {
+        set((s) => ({ automations: [a, ...s.automations] }));
+        void persistRecord("automations", a);
+      },
 
       acceptSuggestedAutomation: (id) =>
         set((s) => ({ automations: s.automations.map((a) => (a.id === id ? { ...a, aiSuggested: false, enabled: true } : a)) })),
@@ -408,7 +506,13 @@ export const useStore = create<AppState>()(
       markAllNotificationsRead: () => set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) })),
 
       addNotification: (n) => {
-        const row: AppNotification = { ...n, id: uid("note"), time: "Just now", read: false };
+        const row: AppNotification = {
+          ...n,
+          id: uid("note"),
+          time: "Just now",
+          read: false,
+          unitId: n.unitId ?? (get().role === "operator" || get().role === "developer" ? undefined : get().accountUnitId),
+        };
         set((s) => ({ notifications: [row, ...s.notifications] }));
         void persistRecord("notifications", row);
         const tone =
@@ -449,6 +553,7 @@ export const useStore = create<AppState>()(
           title: row.title,
           body: row.location,
           category: "security",
+          unitId: row.broadcast ? undefined : row.unitId,
         });
       },
 
@@ -539,6 +644,19 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "jk-smart-living-store",
+      version: 5,
+      migrate: (persisted) => {
+        const rec = persisted as Record<string, unknown>;
+        const mapU = (u: string) => (u === "12A" ? "W001" : u === "18B" ? "W002" : u === "8F" ? "W003" : u);
+        if (typeof rec.accountUnitId === "string") rec.accountUnitId = mapU(rec.accountUnitId);
+        if (Array.isArray(rec.visitors)) {
+          rec.visitors = (rec.visitors as { unitId?: string }[]).map((v) => ({ ...v, unitId: v.unitId ? mapU(v.unitId) : v.unitId }));
+        }
+        if (Array.isArray(rec.devices)) {
+          rec.devices = (rec.devices as { unitId?: string }[]).map((d) => ({ ...d, unitId: d.unitId ? mapU(d.unitId) : d.unitId }));
+        }
+        return rec;
+      },
       partialize: (s) => ({
         theme: s.theme,
         role: s.role,
@@ -548,10 +666,16 @@ export const useStore = create<AppState>()(
         accountEmail: s.accountEmail,
         accountUnitId: s.accountUnitId,
         visitors: s.visitors,
+        devices: s.devices,
+        scenes: s.scenes,
+        automations: s.automations,
         serviceRequests: s.serviceRequests,
         floorUnits: s.floorUnits,
         floorAmenities: s.floorAmenities,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.ensureHomeKits();
+      },
     },
   ),
 );
@@ -564,6 +688,25 @@ export const useStore = create<AppState>()(
  * another resident's devices.
  */
 export function useResidentDevices() {
+  const unitId = canonicalUnitId(useStore((s) => s.accountUnitId));
+  return useStore((s) =>
+    s.devices.filter((d) => {
+      const u = canonicalUnitId(d.unitId);
+      if (unitId === "Tower A" || unitId === "Portfolio") return true;
+      return u === (unitId || CURRENT_UNIT.id);
+    }),
+  );
+}
+
+export function useResidentScenes() {
+  const unitId = canonicalUnitId(useStore((s) => s.accountUnitId));
+  return useStore((s) => s.scenes.filter((sc) => !sc.unitId || canonicalUnitId(sc.unitId) === unitId));
+}
+
+export function useVisibleNotifications() {
+  const role = useStore((s) => s.role);
   const unitId = useStore((s) => s.accountUnitId);
-  return useStore((s) => s.devices.filter((d) => d.unitId === (unitId === "Tower A" || unitId === "Portfolio" ? CURRENT_UNIT.id : unitId || CURRENT_UNIT.id)));
+  const notifications = useStore((s) => s.notifications);
+  if (role === "operator" || role === "developer") return notifications;
+  return notifications.filter((n) => !n.unitId || n.unitId === unitId);
 }

@@ -4,12 +4,11 @@ import { NavLink } from "react-router-dom";
 import { X } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { AIAssistantWidget } from "@/components/ai/AIAssistantWidget";
+import { NesturaLockup } from "@/components/brand/NesturaMark";
 import { NAV_CONFIG } from "@/routes/navConfig";
 import { getIcon } from "@/lib/icons";
 import { cx } from "@/lib/cx";
 import type { Role } from "@/types";
-import { NesturaLockup } from "@/components/brand/NesturaMark";
 
 export function AppShell({
   role,
@@ -83,7 +82,6 @@ export function AppShell({
           <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8">{children}</div>
         </main>
       </div>
-      <AIAssistantWidget />
     </div>
   );
 }

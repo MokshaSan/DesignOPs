@@ -25,7 +25,7 @@ export function DeveloperCollections() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Meridian Tower A · Unit 12A</CardTitle>
+          <CardTitle>Meridian Tower A · W001</CardTitle>
         </CardHeader>
         <div className="space-y-3">
           {invoices.map((inv) => (

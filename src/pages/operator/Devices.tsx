@@ -1,27 +1,88 @@
 import { useState } from "react";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Progress } from "@/components/ui/Progress";
 import { Modal } from "@/components/ui/Modal";
+import { Toggle } from "@/components/ui/Toggle";
 import { deviceIcon } from "@/lib/icons";
 import { useAIMaintenance } from "@/hooks/useAI";
-import type { Device } from "@/types";
+import type { Device, DeviceKind } from "@/types";
 import { cx } from "@/lib/cx";
+import { HOME_UNITS } from "@/lib/units";
 
 const STATUS_TONE = { online: "success", warning: "warning", offline: "danger" } as const;
 
 export function OperatorDevices() {
   const devices = useStore((s) => s.devices);
+  const { addDevice, deleteDevice, toggleDevicePower } = useStore();
   const [selected, setSelected] = useState<Device | null>(null);
+  const [name, setName] = useState("");
+  const [unitId, setUnitId] = useState<string>(HOME_UNITS[0]);
+  const [kind, setKind] = useState<DeviceKind>("light");
+  const [room, setRoom] = useState("Living Room");
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Device Fleet</h1>
-        <p className="mt-1 text-sm text-tertiary">{devices.length} devices across Tower A. Click a device for AI health analysis.</p>
+        <p className="mt-1 text-sm text-tertiary">{devices.length} devices across Tower A. Add to any unit, toggle power, or remove.</p>
       </div>
+
+      <Card className="flex flex-col gap-2 sm:flex-row sm:items-end">
+        <label className="flex-1 text-xs font-medium text-tertiary">
+          Name
+          <input
+            className="mt-1 h-10 w-full rounded-lg border border-border bg-surface-raised px-3 text-sm text-primary"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Corridor light"
+          />
+        </label>
+        <label className="text-xs font-medium text-tertiary">
+          Unit
+          <select
+            className="mt-1 h-10 rounded-lg border border-border bg-surface-raised px-3 text-sm text-primary"
+            value={unitId}
+            onChange={(e) => setUnitId(e.target.value)}
+          >
+            {HOME_UNITS.map((u) => (
+              <option key={u}>{u}</option>
+            ))}
+          </select>
+        </label>
+        <label className="text-xs font-medium text-tertiary">
+          Room
+          <input
+            className="mt-1 h-10 rounded-lg border border-border bg-surface-raised px-3 text-sm text-primary"
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+          />
+        </label>
+        <label className="text-xs font-medium text-tertiary">
+          Kind
+          <select
+            className="mt-1 h-10 rounded-lg border border-border bg-surface-raised px-3 text-sm text-primary"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as DeviceKind)}
+          >
+            {["light", "ac", "curtain", "outlet", "door", "sensor", "camera"].map((k) => (
+              <option key={k}>{k}</option>
+            ))}
+          </select>
+        </label>
+        <Button
+          onClick={() => {
+            if (!name.trim()) return;
+            addDevice({ name: name.trim(), unitId, room, kind, power: false });
+            setName("");
+          }}
+        >
+          <Plus size={15} /> Add to unit
+        </Button>
+      </Card>
 
       <Card padded={false} className="overflow-hidden">
         <div className="overflow-x-auto">
@@ -33,6 +94,7 @@ export function OperatorDevices() {
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="hidden px-4 py-3 font-medium sm:table-cell">Health</th>
                 <th className="hidden px-4 py-3 font-medium md:table-cell">Last Heartbeat</th>
+                <th className="px-4 py-3 font-medium">Control</th>
               </tr>
             </thead>
             <tbody>
@@ -68,6 +130,23 @@ export function OperatorDevices() {
                       </div>
                     </td>
                     <td className="hidden px-4 py-3 text-tertiary md:table-cell">{d.lastHeartbeat}</td>
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-2">
+                        {d.kind !== "sensor" && (
+                          <Toggle checked={d.power} onChange={() => toggleDevicePower(d.id)} size="sm" aria-label={`Toggle ${d.name}`} />
+                        )}
+                        <button
+                          type="button"
+                          aria-label={`Delete ${d.name}`}
+                          onClick={() => {
+                            if (window.confirm(`Remove ${d.name} from ${d.unitId}?`)) deleteDevice(d.id);
+                          }}
+                          className="rounded-lg p-1.5 text-tertiary hover:bg-danger/10 hover:text-danger"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

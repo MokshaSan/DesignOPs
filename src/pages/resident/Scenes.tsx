@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import { Plus, Sparkles } from "lucide-react";
+import { useResidentScenes } from "@/store/useStore";
 import { SceneCard } from "@/components/scenes/SceneCard";
 import { Button } from "@/components/ui/Button";
 import { SceneBuilderModal } from "@/components/scenes/SceneBuilderModal";
 
 export function ResidentScenes() {
-  const scenes = useStore((s) => s.scenes);
+  const scenes = useResidentScenes();
   const [builderOpen, setBuilderOpen] = useState(false);
 
   return (
@@ -14,10 +14,10 @@ export function ResidentScenes() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">Scenes</h1>
-          <p className="mt-1 text-sm text-tertiary">One tap to set the mood — or describe it and let AI build it for you.</p>
+          <p className="mt-1 text-sm text-tertiary">One tap sets the mood. Build with Nestura or pick devices yourself.</p>
         </div>
         <Button onClick={() => setBuilderOpen(true)}>
-          <Sparkles size={15} /> Create with AI
+          <Plus size={15} /> Create scene
         </Button>
       </div>
 

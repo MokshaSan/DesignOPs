@@ -52,6 +52,7 @@ export interface Scene {
   aiGenerated?: boolean;
   aiReasoning?: string;
   lastRun?: string;
+  unitId?: string;
 }
 
 export interface AutomationCondition {
@@ -103,6 +104,7 @@ export interface AppNotification {
   time: string;
   read: boolean;
   category: "security" | "energy" | "maintenance" | "ai" | "billing" | "visitor";
+  unitId?: string;
 }
 
 export type MaintenanceRisk = "low" | "medium" | "high" | "critical";

@@ -16,7 +16,7 @@ export function Modal({ open, onClose, title, children, maxWidth = "max-w-lg" }:
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -29,7 +29,7 @@ export function Modal({ open, onClose, title, children, maxWidth = "max-w-lg" }:
             exit={{ opacity: 0 }}
           />
           <motion.div
-            className={cx("relative z-10 w-full rounded-xl2 border border-border bg-surface p-6 shadow-2xl", maxWidth)}
+            className={cx("relative z-[80] w-full rounded-xl2 border border-border bg-surface p-6 shadow-2xl", maxWidth)}
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 8 }}

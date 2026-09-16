@@ -16,7 +16,7 @@ export interface Amenity {
 
 export const PROPERTY_NAME = "John Keells Residencies — The Meridian";
 export const PROPERTY_TOWER = "Tower A";
-export const DEFAULT_UNIT = "12A";
+export const DEFAULT_UNIT = "W001";
 export const DEFAULT_UNIT_FLOOR = 12;
 
 export const BUILDING_LEVELS: BuildingLevel[] = [

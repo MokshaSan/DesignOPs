@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, Menu, Moon, Sun, LogOut } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import { useStore, useVisibleNotifications } from "@/store/useStore";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/ui/BackButton";
 import { ROLE_LABEL } from "@/routes/navConfig";
@@ -18,7 +18,8 @@ const ROLE_ROUTES: Record<Role, string> = {
 };
 
 export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?: string }) {
-  const { theme, toggleTheme, role, notifications, accountName, setAccount } = useStore();
+  const { theme, toggleTheme, role, accountName, setAccount } = useStore();
+  const notifications = useVisibleNotifications();
   const [roleOpen, setRoleOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();

@@ -7,6 +7,7 @@ import { hydrateAll, seedCollection, subscribeRecords, COLLECTIONS } from "@/lib
 import { useStore } from "@/store/useStore";
 import { ToastHost } from "@/components/ui/ToastHost";
 import { CriticalAlertOverlay } from "@/components/alerts/CriticalAlertOverlay";
+import { AIAssistantWidget } from "@/components/ai/AIAssistantWidget";
 import {
   SEED_AUTOMATIONS,
   SEED_BOOKINGS,
@@ -50,12 +51,16 @@ export default function App() {
       const remote = await hydrateAll();
       for (const collection of COLLECTIONS) {
         const rows = remote[collection] ?? [];
-        if (rows.length) {
+        if (collection === "devices") {
+          if (rows.length) state.applyRemoteCollection("devices", rows, false);
+          else await seedCollection("devices", BOOTSTRAP.devices);
+        } else if (rows.length) {
           state.applyRemoteCollection(collection, rows, true);
         } else if (BOOTSTRAP[collection]) {
           await seedCollection(collection, BOOTSTRAP[collection]);
         }
       }
+      useStore.getState().ensureHomeKits();
     })();
 
     const unsubVisitors = subscribeVisitorRequests((rows) => {
@@ -75,6 +80,7 @@ export default function App() {
       <ToastHost />
       <CriticalAlertOverlay />
       <AppRoutes />
+      <AIAssistantWidget />
     </>
   );
 }

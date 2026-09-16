@@ -10,6 +10,7 @@ export interface NavItem {
 export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
   resident: [
     { to: "/resident", label: "Dashboard", icon: "LayoutDashboard", end: true },
+    { to: "/resident/devices", label: "Devices", icon: "Cpu" },
     { to: "/resident/scenes", label: "Scenes", icon: "Sparkles" },
     { to: "/resident/automation", label: "Automation", icon: "Workflow" },
     { to: "/resident/energy", label: "Energy", icon: "Zap" },
