@@ -2,7 +2,7 @@ import { useStore } from "@/store/useStore";
 import { VisitorRequestCard } from "@/components/visitors/VisitorRequestCard";
 
 export function OperatorVisitors() {
-  const { visitors, approveVisitor, rejectVisitor } = useStore();
+  const { visitors } = useStore();
 
   return (
     <div className="space-y-6">
@@ -13,13 +13,7 @@ export function OperatorVisitors() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visitors.map((v) => (
-          <VisitorRequestCard
-            key={v.id}
-            visitor={v}
-            showUnit
-            onApprove={v.status === "pending" ? approveVisitor : undefined}
-            onReject={v.status === "pending" ? rejectVisitor : undefined}
-          />
+          <VisitorRequestCard key={v.id} visitor={v} showUnit />
         ))}
       </div>
     </div>
