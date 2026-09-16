@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
-import { Trash2 } from "lucide-react";
+import { Trash2, Lock, Unlock } from "lucide-react";
 import type { Device } from "@/types";
 import { deviceIcon } from "@/lib/icons";
 import { Toggle } from "@/components/ui/Toggle";
+import { Button } from "@/components/ui/Button";
 import { cx } from "@/lib/cx";
-import { useStore } from "@/store/useStore";
+import { useStore, useCanManageAccess } from "@/store/useStore";
 
 const STEP: Record<string, number> = { ac: 1, light: 10, curtain: 20 };
 
 export function DeviceTile({ device }: { device: Device }) {
   const { toggleDevicePower, setDeviceValue, deleteDevice } = useStore();
+  const canLocks = useCanManageAccess();
   const Icon = deviceIcon(device.kind);
   const hasSlider = ["light", "ac", "curtain"].includes(device.kind) && device.power;
   const step = STEP[device.kind] ?? 10;
@@ -44,15 +46,16 @@ export function DeviceTile({ device }: { device: Device }) {
             <Toggle checked={device.power} onChange={() => toggleDevicePower(device.id)} size="sm" aria-label={`Toggle ${device.name}`} />
           )}
           {device.kind === "door" && (
-            <button
+            <Button
+              type="button"
+              size="sm"
+              variant={device.power ? "outline" : "primary"}
+              disabled={!canLocks}
               onClick={() => toggleDevicePower(device.id)}
-              className={cx(
-                "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-                device.power ? "bg-success/10 text-success" : "bg-danger/10 text-danger",
-              )}
             >
-              {device.power ? "Locked" : "Unlocked"}
-            </button>
+              {device.power ? <Unlock size={13} /> : <Lock size={13} />}
+              {device.power ? "Unlock" : "Lock"}
+            </Button>
           )}
           <button
             type="button"

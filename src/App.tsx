@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { AppRoutes } from "@/routes/AppRoutes";
 import { useThemeSync } from "@/hooks/useThemeSync";
 import { useSimulatedTelemetry } from "@/hooks/useSimulatedTelemetry";
+import { useAutomationEngine } from "@/hooks/useAutomationEngine";
 import { fetchVisitorRequests, subscribeVisitorRequests } from "@/lib/visitors";
 import { hydrateAll, seedCollection, subscribeRecords, COLLECTIONS } from "@/lib/persist";
 import { useStore } from "@/store/useStore";
@@ -41,6 +42,7 @@ const BOOTSTRAP: Record<string, { id: string }[]> = {
 export default function App() {
   useThemeSync();
   useSimulatedTelemetry();
+  useAutomationEngine();
 
   useEffect(() => {
     void (async () => {

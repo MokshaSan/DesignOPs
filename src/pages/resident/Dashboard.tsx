@@ -8,6 +8,7 @@ import { DeviceTile } from "@/components/devices/DeviceTile";
 import { getIcon } from "@/lib/icons";
 import { SimulateAlertButton } from "@/components/alerts/SimulateAlertButton";
 import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 import { useStore, useResidentDevices, useResidentScenes } from "@/store/useStore";
 import { Badge } from "@/components/ui/Badge";
 
@@ -74,6 +75,7 @@ export function ResidentDashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <LiveAISuggestion />
+          <AIAutomationCard context="home dashboard scenes, lights, AC, and arrival" />
 
           <Card>
             <CardHeader>

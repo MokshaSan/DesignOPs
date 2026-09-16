@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useStore } from "@/store/useStore";
 import { TIER_DESCRIPTION, TIER_LABEL, TIER_PERMISSIONS } from "@/data/permissions";
 import type { ResidentTier } from "@/types";
+import { HouseholdAccessPanel } from "@/components/access/HouseholdAccessPanel";
 import { cx } from "@/lib/cx";
 
 const PERMISSION_LABELS: { key: keyof typeof TIER_PERMISSIONS.owner; label: string }[] = [
@@ -36,6 +37,8 @@ export function ResidentProfile() {
           </Badge>
         </div>
       </Card>
+
+      <HouseholdAccessPanel />
 
       <Card>
         <CardHeader>

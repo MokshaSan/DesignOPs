@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Fingerprint, Lock, Unlock, Car, DoorClosed, QrCode } from "lucide-react";
+import { Fingerprint, Lock, Unlock, QrCode } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { AccessPassCard } from "@/components/visitors/AccessPassCard";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
-import { useStore, useResidentDevices } from "@/store/useStore";
+import { HouseholdAccessPanel } from "@/components/access/HouseholdAccessPanel";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
+import { useStore, useResidentDevices, useCanManageAccess } from "@/store/useStore";
 import type { VisitorRequest, VisitorType } from "@/types";
-import { TIER_PERMISSIONS } from "@/data/permissions";
 import { RestrictedNotice } from "@/components/ui/RestrictedNotice";
 
 function uid() {
@@ -16,10 +17,10 @@ function uid() {
 }
 
 export function ResidentAccess() {
-  const { toggleDevicePower, addVisitorRequest, addNotification, residentTier, accountUnitId, accountName } = useStore();
+  const { toggleDevicePower, addVisitorRequest, addNotification, accountUnitId, accountName } = useStore();
   const devices = useResidentDevices();
-  const canGrantAccess = TIER_PERMISSIONS[residentTier].access;
-  const door = devices.find((d) => d.kind === "door");
+  const canGrantAccess = useCanManageAccess();
+  const doors = devices.filter((d) => d.kind === "door");
   const [formOpen, setFormOpen] = useState(false);
   const [passOpen, setPassOpen] = useState(false);
   const [createdPass, setCreatedPass] = useState<VisitorRequest | null>(null);
@@ -63,44 +64,38 @@ export function ResidentAccess() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Access</h1>
-        <p className="mt-1 text-sm text-tertiary">Manage locks and issue temporary access passes.</p>
+        <p className="mt-1 text-sm text-tertiary">Lock or unlock every door this unit controls, then issue a timed pass.</p>
       </div>
 
+      <AIAutomationCard context={`access and door locks for unit ${accountUnitId}`} />
+
+      <HouseholdAccessPanel />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="flex flex-col items-center gap-3 text-center">
-          <div className={`flex h-12 w-12 items-center justify-center rounded-full ${door?.power ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}>
-            {door?.power ? <Lock size={20} /> : <Unlock size={20} />}
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-primary">Front Door</p>
-            <p className="text-xs text-tertiary">{door?.power ? "Locked" : "Unlocked"}</p>
-          </div>
-          <Button size="sm" variant={door?.power ? "outline" : "primary"} onClick={() => door && toggleDevicePower(door.id)}>
-            {door?.power ? "Unlock" : "Lock"}
-          </Button>
-        </Card>
-
-        <Card className="flex flex-col items-center gap-3 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
-            <Car size={20} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-primary">Garage</p>
-            <p className="text-xs text-tertiary">Available</p>
-          </div>
-          <Badge tone="success">Auto-controlled</Badge>
-        </Card>
-
-        <Card className="flex flex-col items-center gap-3 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
-            <DoorClosed size={20} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-primary">Building Main Entrance</p>
-            <p className="text-xs text-tertiary">Locked · Key fob required</p>
-          </div>
-          <Badge tone="neutral">Building-managed</Badge>
-        </Card>
+        {doors.length === 0 && (
+          <Card className="sm:col-span-3 text-sm text-tertiary">No locks on this unit yet. Add a door device from Devices.</Card>
+        )}
+        {doors.map((door) => (
+          <Card key={door.id} className="flex flex-col items-center gap-3 text-center">
+            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${door.power ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}>
+              {door.power ? <Lock size={20} /> : <Unlock size={20} />}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-primary">{door.name}</p>
+              <p className="text-xs text-tertiary">
+                {door.room} · {door.power ? "Locked" : "Unlocked"}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant={door.power ? "outline" : "primary"}
+              disabled={!canGrantAccess}
+              onClick={() => toggleDevicePower(door.id)}
+            >
+              {door.power ? "Unlock" : "Lock"}
+            </Button>
+          </Card>
+        ))}
       </div>
 
       <Card>
@@ -116,7 +111,7 @@ export function ResidentAccess() {
             </Button>
           </>
         ) : (
-          <RestrictedNotice message="Your tenant tier doesn't include visitor access management. Ask the unit owner to grant this permission or issue passes on your behalf." />
+          <RestrictedNotice message="The unit owner has not given this household member visitor or lock control. Ask Ruwan (or the owner) to enable family access on Profile." />
         )}
       </Card>
 

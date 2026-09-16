@@ -1,19 +1,18 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import { useStore, useCanManageAccess } from "@/store/useStore";
 import { VisitorRequestCard } from "@/components/visitors/VisitorRequestCard";
 import { AccessPassCard } from "@/components/visitors/AccessPassCard";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
-import { TIER_PERMISSIONS } from "@/data/permissions";
 import { RestrictedNotice } from "@/components/ui/RestrictedNotice";
 import type { VisitorRequest } from "@/types";
 
 export function ResidentVisitors() {
-  const { visitors, approveVisitor, rejectVisitor, addNotification, residentTier, accountUnitId, setVisitorAccess } = useStore();
-  const canManage = TIER_PERMISSIONS[residentTier].access;
+  const { visitors, approveVisitor, rejectVisitor, addNotification, accountUnitId, setVisitorAccess } = useStore();
+  const canManage = useCanManageAccess();
   const mine = visitors.filter((v) => v.unitId === accountUnitId);
   const [showPassFor, setShowPassFor] = useState<VisitorRequest | null>(null);
   const [grantFor, setGrantFor] = useState<VisitorRequest | null>(null);
@@ -71,7 +70,7 @@ export function ResidentVisitors() {
           <h2 className="mb-3 text-sm font-semibold text-primary">Pending Requests</h2>
           {!canManage && (
             <div className="mb-3">
-              <RestrictedNotice message="Your tenant tier can view visitor activity but can't approve or reject requests — that's managed by the unit owner." />
+              <RestrictedNotice message="The unit owner turned off visitor grants for this household member. Ask them to enable family access on Profile." />
             </div>
           )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

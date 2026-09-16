@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Plus, Sparkles, Zap, Clock, DoorOpen, Activity, Trash2 } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import { useStore, useResidentScenes, useResidentAutomations } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Toggle } from "@/components/ui/Toggle";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import type { Automation, AutomationCondition } from "@/types";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 
 const TRIGGER_ICON: Record<AutomationCondition["type"], typeof Clock> = {
   time: Clock,
@@ -21,7 +22,9 @@ function uid() {
 }
 
 export function ResidentAutomation() {
-  const { automations, scenes, toggleAutomation, addAutomation, deleteAutomation } = useStore();
+  const { toggleAutomation, addAutomation, deleteAutomation, fireAutomation, accountUnitId } = useStore();
+  const scenes = useResidentScenes();
+  const automations = useResidentAutomations();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [triggerType, setTriggerType] = useState<AutomationCondition["type"]>("time");
@@ -64,6 +67,8 @@ export function ResidentAutomation() {
         </Button>
       </div>
 
+      <AIAutomationCard context={`automations for unit ${accountUnitId}`} />
+
       <div className="space-y-3">
         {automations.map((a) => {
           const scene = scenes.find((s) => s.id === a.sceneId);
@@ -98,6 +103,9 @@ export function ResidentAutomation() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                <Button size="sm" variant="outline" onClick={() => fireAutomation(a.id)} disabled={!a.enabled}>
+                  Run
+                </Button>
                 <Zap size={14} className={a.enabled ? "text-brand-600" : "text-tertiary"} />
                 <Toggle checked={a.enabled} onChange={() => toggleAutomation(a.id)} aria-label={`Toggle ${a.name}`} />
                 <button

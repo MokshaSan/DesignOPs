@@ -4,6 +4,7 @@ import { StatTile } from "@/components/ui/StatTile";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { EnergyChart } from "@/components/charts/EnergyChart";
 import { AIInsightCard } from "@/components/ai/AIInsightCard";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 import { Button } from "@/components/ui/Button";
 import { useAIEnergyInsight } from "@/hooks/useAI";
 import { ENERGY_TODAY, ENERGY_WEEK } from "@/data/seed";
@@ -51,6 +52,8 @@ export function ResidentEnergy() {
         <StatTile label="Estimated Monthly" value="126 kWh" icon={TrendingDown} tone="success" />
         <StatTile label="vs. Last Month" value="↓ 11%" icon={TrendingDown} tone="success" trend={{ value: "Trending down", positive: true }} />
       </div>
+
+      <AIAutomationCard context="energy saver AC and occupancy" />
 
       {loading && !insight && (
         <Card className="flex items-center gap-3 text-sm text-tertiary">

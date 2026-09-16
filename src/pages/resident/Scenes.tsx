@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useResidentScenes } from "@/store/useStore";
 import { SceneCard } from "@/components/scenes/SceneCard";
 import { Button } from "@/components/ui/Button";
 import { SceneBuilderModal } from "@/components/scenes/SceneBuilderModal";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 
 export function ResidentScenes() {
   const scenes = useResidentScenes();
@@ -20,6 +21,8 @@ export function ResidentScenes() {
           <Plus size={15} /> Create scene
         </Button>
       </div>
+
+      <AIAutomationCard context="scenes and evening routines" />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {scenes.map((s) => (

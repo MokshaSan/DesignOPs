@@ -23,6 +23,7 @@ import type {
 import { persistRecord, deleteRecord } from "@/lib/persist";
 import { persistVisitorRequest } from "@/lib/visitors";
 import { useToastStore } from "@/store/toastStore";
+import { TIER_PERMISSIONS } from "@/data/permissions";
 import { type DemoAccount } from "@/data/demoAccounts";
 import { canonicalUnitId, HOME_UNITS } from "@/lib/units";
 import { createHomeDevices, CURRENT_UNIT, SEED_ALERTS, SEED_AUTOMATIONS, SEED_BOOKINGS, SEED_DEVICES, SEED_FLOOR_AMENITIES, SEED_FLOOR_UNITS, SEED_INVOICES, SEED_MAINTENANCE, SEED_NOTICES, SEED_NOTIFICATIONS, SEED_SCENES, SEED_SERVICE_REQUESTS, SEED_TICKETS, SEED_VISITORS } from "@/data/seed";
@@ -113,6 +114,9 @@ interface AppState {
   cancelBooking: (id: string) => void;
 
   logActivity: (text: string) => void;
+  householdAccess: Record<string, boolean>;
+  setHouseholdAccess: (accountKey: string, canAccess: boolean) => void;
+  fireAutomation: (id: string) => void;
 }
 
 function nowLabel() {
@@ -149,6 +153,11 @@ export const useStore = create<AppState>()(
         { id: uid("log"), text: "Front door unlocked", time: "18:24" },
       ],
       lastActivatedScene: null,
+      householdAccess: {
+        "w001-occupier": true,
+        "w002-spouse": true,
+        "w002-child": false,
+      },
       accountKey: "w001-owner",
       accountName: "John Perera",
       accountEmail: "john.owner@example.com",
@@ -210,7 +219,17 @@ export const useStore = create<AppState>()(
           devices: s.devices.map((d) => (d.id === id ? { ...d, power: !d.power, lastHeartbeat: "just now" } : d)),
         }));
         const row = get().devices.find((d) => d.id === id);
-        if (row) void persistRecord("devices", row);
+        if (row) {
+          void persistRecord("devices", row);
+          get().logActivity(`${row.name} ${row.kind === "door" ? (row.power ? "locked" : "unlocked") : row.power ? "on" : "off"}`);
+          if (row.kind === "door") {
+            useToastStore.getState().pushToast({
+              title: row.name,
+              body: row.power ? "Locked" : "Unlocked",
+              tone: row.power ? "success" : "warning",
+            });
+          }
+        }
       },
 
       setDeviceValue: (id, value) => {
@@ -226,9 +245,9 @@ export const useStore = create<AppState>()(
         const row: Device = {
           status: "online",
           health: 100,
-          power: false,
           lastHeartbeat: "just now",
           ...input,
+          power: input.power ?? false,
           id: input.id || `dev-${Math.random().toString(36).slice(2, 8)}`,
           unitId,
         };
@@ -271,7 +290,13 @@ export const useStore = create<AppState>()(
         const extra: Device[] = [];
         const mapped = get().devices.map((d) => ({ ...d, unitId: canonicalUnitId(d.unitId) || d.unitId }));
         for (const unit of HOME_UNITS) {
-          if (!mapped.some((d) => d.unitId === unit)) extra.push(...createHomeDevices(unit));
+          const existing = mapped.filter((d) => d.unitId === unit);
+          if (existing.length === 0) extra.push(...createHomeDevices(unit));
+          else {
+            for (const lock of createHomeDevices(unit).filter((d) => d.kind === "door")) {
+              if (!existing.some((d) => d.kind === "door" && (d.id === lock.id || d.name === lock.name))) extra.push(lock);
+            }
+          }
         }
         set({
           devices: extra.length ? [...mapped, ...extra] : mapped,
@@ -335,8 +360,25 @@ export const useStore = create<AppState>()(
         set((s) => ({ automations: s.automations.map((a) => (a.id === id ? { ...a, enabled: !a.enabled } : a)) })),
 
       addAutomation: (a) => {
-        set((s) => ({ automations: [a, ...s.automations] }));
-        void persistRecord("automations", a);
+        const row = { ...a, unitId: a.unitId || get().accountUnitId };
+        set((s) => ({ automations: [row, ...s.automations] }));
+        void persistRecord("automations", row);
+      },
+
+      fireAutomation: (id) => {
+        const a = get().automations.find((x) => x.id === id);
+        if (!a || !a.enabled) return;
+        get().runScene(a.sceneId);
+        set((s) => ({
+          automations: s.automations.map((x) =>
+            x.id === id ? { ...x, lastTriggered: new Date().toISOString().slice(0, 16) } : x,
+          ),
+        }));
+      },
+
+      setHouseholdAccess: (accountKey, canAccess) => {
+        set((s) => ({ householdAccess: { ...s.householdAccess, [accountKey]: canAccess } }));
+        get().logActivity(`Household access ${canAccess ? "granted" : "revoked"} for ${accountKey}`);
       },
 
       acceptSuggestedAutomation: (id) =>
@@ -644,7 +686,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "jk-smart-living-store",
-      version: 5,
+      version: 6,
       migrate: (persisted) => {
         const rec = persisted as Record<string, unknown>;
         const mapU = (u: string) => (u === "12A" ? "W001" : u === "18B" ? "W002" : u === "8F" ? "W003" : u);
@@ -654,6 +696,9 @@ export const useStore = create<AppState>()(
         }
         if (Array.isArray(rec.devices)) {
           rec.devices = (rec.devices as { unitId?: string }[]).map((d) => ({ ...d, unitId: d.unitId ? mapU(d.unitId) : d.unitId }));
+        }
+        if (!rec.householdAccess || typeof rec.householdAccess !== "object") {
+          rec.householdAccess = { "w001-occupier": true, "w002-spouse": true, "w002-child": false };
         }
         return rec;
       },
@@ -672,6 +717,7 @@ export const useStore = create<AppState>()(
         serviceRequests: s.serviceRequests,
         floorUnits: s.floorUnits,
         floorAmenities: s.floorAmenities,
+        householdAccess: s.householdAccess,
       }),
       onRehydrateStorage: () => (state) => {
         state?.ensureHomeKits();
@@ -701,6 +747,22 @@ export function useResidentDevices() {
 export function useResidentScenes() {
   const unitId = canonicalUnitId(useStore((s) => s.accountUnitId));
   return useStore((s) => s.scenes.filter((sc) => !sc.unitId || canonicalUnitId(sc.unitId) === unitId));
+}
+
+export function useResidentAutomations() {
+  const unitId = canonicalUnitId(useStore((s) => s.accountUnitId));
+  return useStore((s) => s.automations.filter((a) => !a.unitId || canonicalUnitId(a.unitId) === unitId));
+}
+
+export function useCanManageAccess() {
+  const role = useStore((s) => s.role);
+  const residentTier = useStore((s) => s.residentTier);
+  const accountKey = useStore((s) => s.accountKey);
+  const householdAccess = useStore((s) => s.householdAccess);
+  if (role !== "resident") return true;
+  if (residentTier === "owner") return true;
+  if (Object.prototype.hasOwnProperty.call(householdAccess, accountKey)) return householdAccess[accountKey];
+  return TIER_PERMISSIONS[residentTier].access;
 }
 
 export function useVisibleNotifications() {

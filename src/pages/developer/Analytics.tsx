@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/Progress";
 import { Badge } from "@/components/ui/Badge";
 import { AIInsightCard } from "@/components/ai/AIInsightCard";
 import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 import { ADOPTION_DATA, ENERGY_WEEK, PORTFOLIO_ENERGY } from "@/data/seed";
 import { useAIAnalytics } from "@/hooks/useAI";
 import { useStore } from "@/store/useStore";
@@ -32,6 +33,7 @@ export function DeveloperAnalytics() {
       </div>
 
       <LiveAISuggestion />
+      <AIAutomationCard context="portfolio energy, visitor flow, and device health" />
 
       {loading && !ai && (
         <Card className="flex items-center gap-2 text-sm text-tertiary">

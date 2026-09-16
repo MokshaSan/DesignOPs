@@ -90,8 +90,9 @@ export function useAIMaintenance() {
 }
 
 export function useAIAutomationSuggest() {
-  return useAsync((activityLog: { text: string; time: string }[]) =>
-    post<AIAutomationResult>("/api/ai/automation-suggest", { activityLog }),
+  return useAsync(
+    (payload: { activityLog: { text: string; time: string }[]; unit?: string; context?: string; devices?: unknown[] }) =>
+      post<AIAutomationResult>("/api/ai/automation-suggest", payload),
   );
 }
 

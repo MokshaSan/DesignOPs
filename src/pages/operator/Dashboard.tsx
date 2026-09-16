@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { SimulateAlertButton } from "@/components/alerts/SimulateAlertButton";
 import { BroadcastFireButton } from "@/components/alerts/BroadcastFireButton";
 import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 import { useStore } from "@/store/useStore";
 import { EnergyChart } from "@/components/charts/EnergyChart";
 import { ENERGY_WEEK } from "@/data/seed";
@@ -33,6 +34,7 @@ export function OperatorDashboard() {
       </div>
 
       <LiveAISuggestion />
+      <AIAutomationCard context="operator building occupancy, visitor flow, and device warnings" />
 
       {criticalAlerts.length > 0 && (
         <Card className="flex items-center gap-3 border-danger/40 bg-danger/5">

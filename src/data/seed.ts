@@ -38,6 +38,8 @@ export function createHomeDevices(unitId: string, prefix?: string): Device[] {
     { id: `${p}-ac-br`, name: "Bedroom AC", room: "Bedroom", kind: "ac", unitId, status: "online", power: false, value: 26, unit: "°C", health: 88, lastHeartbeat: "2m ago" },
     { id: `${p}-curtain-lr`, name: "Living Room Curtains", room: "Living Room", kind: "curtain", unitId, status: "online", power: true, value: 100, unit: "%", health: 100, lastHeartbeat: "just now" },
     { id: `${p}-door-front`, name: "Front Door", room: "Entrance", kind: "door", unitId, status: "online", power: true, health: 97, lastHeartbeat: "just now" },
+    { id: `${p}-door-garage`, name: "Garage", room: "Parking", kind: "door", unitId, status: "online", power: true, health: 95, lastHeartbeat: "just now" },
+    { id: `${p}-door-lobby`, name: "Building Main Entrance", room: "Lobby", kind: "door", unitId, status: "online", power: true, health: 99, lastHeartbeat: "just now" },
     { id: `${p}-sensor-temp`, name: "Living Room Sensor", room: "Living Room", kind: "sensor", unitId, status: "warning", power: true, value: 62, unit: "%", health: 62, battery: 18, errorCount: 4, latencyMs: 820, lastHeartbeat: "09:42" },
     { id: `${p}-outlet-tv`, name: "TV & Media Outlet", room: "Living Room", kind: "outlet", unitId, status: "online", power: false, health: 100, lastHeartbeat: "just now" },
   ];

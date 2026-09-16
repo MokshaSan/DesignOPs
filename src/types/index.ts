@@ -70,6 +70,7 @@ export interface Automation {
   aiSuggested?: boolean;
   confidence?: number;
   lastTriggered?: string;
+  unitId?: string;
 }
 
 export type VisitorType = "guest" | "delivery" | "contractor" | "service";

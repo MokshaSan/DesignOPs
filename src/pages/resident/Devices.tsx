@@ -6,6 +6,7 @@ import { DeviceTile } from "@/components/devices/DeviceTile";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { HOME_UNITS } from "@/lib/units";
+import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 
 const KINDS: DeviceKind[] = ["light", "ac", "curtain", "outlet", "door", "sensor", "camera"];
 const ROOMS = ["Living Room", "Bedroom", "Kitchen", "Entrance", "Bathroom", "Balcony", "Study"];
@@ -58,6 +59,8 @@ export function ResidentDevices() {
           <PowerOff size={15} /> All off
         </Button>
       </div>
+
+      <AIAutomationCard context={`device control for unit ${accountUnitId}`} />
 
       <Card className="space-y-3">
         <p className="text-sm font-semibold text-primary">Add a device</p>

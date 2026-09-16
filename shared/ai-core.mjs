@@ -201,7 +201,8 @@ ${facts}`;
   if (route === "automation-suggest") {
     const { activityLog = [] } = body;
     const system = `Suggest ONE automation. JSON: {"name": string, "trigger": string, "reasoning": string, "confidence": number}.`;
-    const raw = await callOpenAI({ system, user: JSON.stringify(activityLog.slice(0, 20)), json: true });
+    const user = `Unit ${body.unit || "home"}. Context: ${body.context || "routines"}. Activity: ${JSON.stringify(activityLog.slice(0, 20))}`;
+    const raw = await callOpenAI({ system, user, json: true });
     const parsed = safeJsonParse(raw);
     if (parsed) return { status: 200, json: { ...parsed, source: "ai" } };
     return {

@@ -132,9 +132,17 @@ export function OperatorDevices() {
                     <td className="hidden px-4 py-3 text-tertiary md:table-cell">{d.lastHeartbeat}</td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
-                        {d.kind !== "sensor" && (
+                        {d.kind === "door" ? (
+                          <Button
+                            size="sm"
+                            variant={d.power ? "outline" : "primary"}
+                            onClick={() => toggleDevicePower(d.id)}
+                          >
+                            {d.power ? "Unlock" : "Lock"}
+                          </Button>
+                        ) : d.kind !== "sensor" ? (
                           <Toggle checked={d.power} onChange={() => toggleDevicePower(d.id)} size="sm" aria-label={`Toggle ${d.name}`} />
-                        )}
+                        ) : null}
                         <button
                           type="button"
                           aria-label={`Delete ${d.name}`}
