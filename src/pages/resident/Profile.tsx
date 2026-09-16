@@ -32,7 +32,7 @@ export function ResidentProfile() {
         <div>
           <p className="text-lg font-semibold text-primary">{CURRENT_UNIT.residentName}</p>
           <p className="text-sm text-tertiary">
-            {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.id}
+            {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.label}
           </p>
           <Badge tone="brand" className="mt-2">
             {TIER_LABEL[residentTier]}

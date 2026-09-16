@@ -7,6 +7,7 @@ import { buildingContext } from "./buildingMap.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config({ path: path.join(__dirname, "..", ".env.local") });
 
 const app = express();
 app.use(cors());
@@ -32,7 +33,8 @@ async function callOpenAI({ system, user, json = false }) {
       },
       body: JSON.stringify({
         model: OPENAI_MODEL,
-        temperature: 0.6,
+        temperature: 0.35,
+        max_tokens: 220,
         messages: [
           { role: "system", content: system },
           { role: "user", content: user },

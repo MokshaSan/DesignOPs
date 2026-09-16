@@ -14,6 +14,8 @@ import type {
   ResidentTier,
   Role,
   Scene,
+  ServiceRequest,
+  ServiceRequestStatus,
   ServiceTicket,
   TicketStatus,
   VisitorRequest,
@@ -31,10 +33,12 @@ import {
   SEED_NOTICES,
   SEED_NOTIFICATIONS,
   SEED_SCENES,
+  SEED_SERVICE_REQUESTS,
   SEED_TICKETS,
   SEED_VISITORS,
 } from "@/data/seed";
-import { persistVisitorRequest, persistVisitorStatus } from "@/lib/visitors";
+import { persistRecord } from "@/lib/persist";
+import { persistVisitorRequest } from "@/lib/visitors";
 
 type Theme = "light" | "dark";
 
@@ -53,6 +57,7 @@ interface AppState {
   invoices: Invoice[];
   notices: Notice[];
   bookings: FacilityBooking[];
+  serviceRequests: ServiceRequest[];
   floorUnits: FloorPlanUnit[];
   floorAmenities: FloorPlanAmenity[];
   activityLog: { id: string; text: string; time: string }[];
@@ -73,11 +78,13 @@ interface AppState {
   addAutomation: (a: Automation) => void;
   acceptSuggestedAutomation: (id: string) => void;
 
-  approveVisitor: (id: string) => void;
+  approveVisitor: (id: string, grant?: { requestedFor: string; windowStart: string; windowEnd: string }) => void;
   rejectVisitor: (id: string) => void;
   addVisitorRequest: (v: VisitorRequest) => void;
   expireVisitor: (id: string) => void;
   mergeVisitors: (rows: VisitorRequest[]) => void;
+  mergeServiceRequests: (rows: ServiceRequest[]) => void;
+  updateServiceRequestStatus: (id: string, status: ServiceRequestStatus) => void;
 
   addFloorUnit: (unit: Omit<FloorPlanUnit, "id">) => void;
   updateFloorUnit: (id: string, patch: Partial<FloorPlanUnit>) => void;
@@ -128,6 +135,7 @@ export const useStore = create<AppState>()(
       invoices: SEED_INVOICES,
       notices: SEED_NOTICES,
       bookings: SEED_BOOKINGS,
+      serviceRequests: SEED_SERVICE_REQUESTS,
       floorUnits: SEED_FLOOR_UNITS,
       floorAmenities: SEED_FLOOR_AMENITIES,
       activityLog: [
@@ -183,14 +191,34 @@ export const useStore = create<AppState>()(
       acceptSuggestedAutomation: (id) =>
         set((s) => ({ automations: s.automations.map((a) => (a.id === id ? { ...a, aiSuggested: false, enabled: true } : a)) })),
 
-      approveVisitor: (id) => {
-        set((s) => ({ visitors: s.visitors.map((v) => (v.id === id ? { ...v, status: "approved" } : v)) }));
-        void persistVisitorStatus(id, "approved");
+      approveVisitor: (id, grant) => {
+        let next: VisitorRequest | undefined;
+        set((s) => ({
+          visitors: s.visitors.map((v) => {
+            if (v.id !== id) return v;
+            next = {
+              ...v,
+              status: "approved",
+              requestedFor: grant?.requestedFor ?? v.requestedFor,
+              windowStart: grant?.windowStart ?? v.windowStart,
+              windowEnd: grant?.windowEnd ?? v.windowEnd,
+            };
+            return next;
+          }),
+        }));
+        if (next) void persistVisitorRequest(next);
       },
 
       rejectVisitor: (id) => {
-        set((s) => ({ visitors: s.visitors.map((v) => (v.id === id ? { ...v, status: "rejected" } : v)) }));
-        void persistVisitorStatus(id, "rejected");
+        let next: VisitorRequest | undefined;
+        set((s) => ({
+          visitors: s.visitors.map((v) => {
+            if (v.id !== id) return v;
+            next = { ...v, status: "rejected" };
+            return next;
+          }),
+        }));
+        if (next) void persistVisitorRequest(next);
       },
 
       addVisitorRequest: (v) => {
@@ -198,8 +226,17 @@ export const useStore = create<AppState>()(
         void persistVisitorRequest(v);
       },
 
-      expireVisitor: (id) =>
-        set((s) => ({ visitors: s.visitors.map((v) => (v.id === id ? { ...v, status: "expired" } : v)) })),
+      expireVisitor: (id) => {
+        let next: VisitorRequest | undefined;
+        set((s) => ({
+          visitors: s.visitors.map((v) => {
+            if (v.id !== id) return v;
+            next = { ...v, status: "expired" };
+            return next;
+          }),
+        }));
+        if (next) void persistVisitorRequest(next);
+      },
 
       mergeVisitors: (rows) =>
         set((s) => {
@@ -207,6 +244,25 @@ export const useStore = create<AppState>()(
           rows.forEach((v) => map.set(v.id, v));
           return { visitors: Array.from(map.values()) };
         }),
+
+      mergeServiceRequests: (rows) =>
+        set((s) => {
+          const map = new Map(s.serviceRequests.map((v) => [v.id, v]));
+          rows.forEach((v) => map.set(v.id, v));
+          return { serviceRequests: Array.from(map.values()) };
+        }),
+
+      updateServiceRequestStatus: (id, status) => {
+        let next: ServiceRequest | undefined;
+        set((s) => ({
+          serviceRequests: s.serviceRequests.map((r) => {
+            if (r.id !== id) return r;
+            next = { ...r, status };
+            return next;
+          }),
+        }));
+        if (next) void persistRecord("service_requests", next);
+      },
 
       addFloorUnit: (unit) =>
         set((s) => {
@@ -244,56 +300,77 @@ export const useStore = create<AppState>()(
       updateMaintenanceStatus: (id, status) =>
         set((s) => ({ maintenance: s.maintenance.map((m) => (m.id === id ? { ...m, status } : m)) })),
 
-      addTicket: (t) =>
-        set((s) => ({
-          tickets: [
-            {
-              ...t,
-              id: uid("t"),
-              createdAt: `Today, ${nowLabel()}`,
-              unitId: CURRENT_UNIT.id,
-              residentName: CURRENT_UNIT.residentName,
-              status: "open",
-            },
-            ...s.tickets,
-          ],
-        })),
+      addTicket: (t) => {
+        const row = {
+          ...t,
+          id: uid("t"),
+          createdAt: `Today, ${nowLabel()}`,
+          unitId: CURRENT_UNIT.id,
+          residentName: CURRENT_UNIT.residentName,
+          status: "open" as const,
+        };
+        set((s) => ({ tickets: [row, ...s.tickets] }));
+        void persistRecord("service_tickets", row);
+      },
 
-      updateTicketStatus: (id, status) =>
-        set((s) => ({ tickets: s.tickets.map((t) => (t.id === id ? { ...t, status } : t)) })),
-
-      payInvoice: (id) =>
+      updateTicketStatus: (id, status) => {
+        let next: ServiceTicket | undefined;
         set((s) => ({
-          invoices: s.invoices.map((i) => (i.id === id ? { ...i, status: "paid", method: "Nestura Pay" } : i)),
-        })),
+          tickets: s.tickets.map((t) => {
+            if (t.id !== id) return t;
+            next = { ...t, status };
+            return next;
+          }),
+        }));
+        if (next) void persistRecord("service_tickets", next);
+      },
 
-      addNotice: (n) =>
+      payInvoice: (id) => {
+        let next: Invoice | undefined;
         set((s) => ({
-          notices: [{ ...n, id: uid("nt"), postedAt: `Today, ${nowLabel()}` }, ...s.notices],
-        })),
+          invoices: s.invoices.map((i) => {
+            if (i.id !== id) return i;
+            next = { ...i, status: "paid", method: "Nestura Pay" };
+            return next;
+          }),
+        }));
+        if (next) void persistRecord("invoices", next);
+      },
+
+      addNotice: (n) => {
+        const row = { ...n, id: uid("nt"), postedAt: `Today, ${nowLabel()}` };
+        set((s) => ({ notices: [row, ...s.notices] }));
+        void persistRecord("notices", row);
+      },
 
       addBooking: (b) => {
         const taken = get().bookings.some(
           (x) => x.facilityId === b.facilityId && x.date === b.date && x.slot === b.slot && x.status === "confirmed",
         );
         if (taken) return false;
-        set((s) => ({
-          bookings: [
-            {
-              ...b,
-              id: uid("bk"),
-              unitId: CURRENT_UNIT.id,
-              residentName: CURRENT_UNIT.residentName,
-              status: "confirmed",
-            },
-            ...s.bookings,
-          ],
-        }));
+        const row = {
+          ...b,
+          id: uid("bk"),
+          unitId: CURRENT_UNIT.id,
+          residentName: CURRENT_UNIT.residentName,
+          status: "confirmed" as const,
+        };
+        set((s) => ({ bookings: [row, ...s.bookings] }));
+        void persistRecord("facility_bookings", row);
         return true;
       },
 
-      cancelBooking: (id) =>
-        set((s) => ({ bookings: s.bookings.map((b) => (b.id === id ? { ...b, status: "cancelled" } : b)) })),
+      cancelBooking: (id) => {
+        let next: FacilityBooking | undefined;
+        set((s) => ({
+          bookings: s.bookings.map((b) => {
+            if (b.id !== id) return b;
+            next = { ...b, status: "cancelled" };
+            return next;
+          }),
+        }));
+        if (next) void persistRecord("facility_bookings", next);
+      },
 
       logActivity: (text) =>
         set((s) => ({ activityLog: [{ id: uid("log"), text, time: nowLabel() }, ...s.activityLog].slice(0, 30) })),
@@ -305,6 +382,7 @@ export const useStore = create<AppState>()(
         role: s.role,
         residentTier: s.residentTier,
         visitors: s.visitors,
+        serviceRequests: s.serviceRequests,
         floorUnits: s.floorUnits,
         floorAmenities: s.floorAmenities,
       }),

@@ -35,7 +35,7 @@ export function ResidentVisitors() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Visitors</h1>
-        <p className="mt-1 text-sm text-tertiary">Approve access requests and manage active passes for Unit {CURRENT_UNIT.id}.</p>
+        <p className="mt-1 text-sm text-tertiary">Approve access requests and manage active passes for Unit {CURRENT_UNIT.label}.</p>
       </div>
 
       {pending.length > 0 && (

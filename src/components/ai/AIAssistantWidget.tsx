@@ -59,7 +59,7 @@ export function AIAssistantWidget() {
             transition={{ type: "spring", bounce: 0.15, duration: 0.35 }}
             className="fixed bottom-24 right-4 z-50 flex h-[32rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl md:right-6"
           >
-            <div className="flex items-center gap-3 border-b border-border bg-gradient-to-r from-brand-600 to-brand-800 px-4 py-3.5 text-white">
+            <div className="brand-mark flex items-center gap-3 border-b border-border px-4 py-3.5 text-white">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
                 <Bot size={16} />
               </div>
@@ -142,7 +142,7 @@ export function AIAssistantWidget() {
       <motion.button
         whileTap={{ scale: 0.92 }}
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow md:right-6"
+        className="brand-mark fixed bottom-6 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-glow md:right-6"
         aria-label="Open Aria assistant"
       >
         <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-brand-500" />

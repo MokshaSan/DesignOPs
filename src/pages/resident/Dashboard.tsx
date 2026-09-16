@@ -40,7 +40,7 @@ export function ResidentDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-tertiary">
-          {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.id}
+          {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.label}
         </p>
         <h1 className="text-2xl font-bold text-primary md:text-3xl">
           {greeting()}, {CURRENT_UNIT.residentName.split(" ")[0]}
@@ -204,7 +204,7 @@ export function ResidentDashboard() {
             </ul>
           </Card>
 
-          <Card className="bg-gradient-to-br from-brand-700 to-brand-900 text-white">
+          <Card className="bg-gradient-to-br from-brand-700 to-brand-900 text-white dark:from-brand-300 dark:to-brand-200">
             <div className="flex items-center gap-2">
               <Sparkles size={16} />
               <p className="text-sm font-semibold">Ask Aria</p>

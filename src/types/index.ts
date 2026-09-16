@@ -80,9 +80,12 @@ export interface VisitorRequest {
   name: string;
   type: VisitorType;
   unitId: string;
-  requestedFor: string; // ISO date
-  windowStart: string; // HH:mm
-  windowEnd: string; // HH:mm
+  hostName?: string;
+  destination?: string;
+  purpose?: string;
+  requestedFor: string;
+  windowStart: string;
+  windowEnd: string;
   riskLevel: "low" | "medium" | "high";
   riskReason: string;
   status: VisitorStatus;
@@ -146,6 +149,20 @@ export interface Property {
   uptime: number;
   energyTrend: number;
   engagementScore: number;
+}
+
+export type ServiceKind = "cleaning" | "maintenance" | "moving";
+export type ServiceRequestStatus = "pending" | "scheduled" | "in-progress" | "completed";
+
+export interface ServiceRequest {
+  id: string;
+  unitId: string;
+  residentName: string;
+  kind: ServiceKind;
+  requestedAt: string;
+  scheduledFor: string;
+  notes?: string;
+  status: ServiceRequestStatus;
 }
 
 export interface ChatMessage {

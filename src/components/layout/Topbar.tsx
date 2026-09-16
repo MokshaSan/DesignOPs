@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, Menu, Moon, Sun, LogOut } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { Avatar } from "@/components/ui/Avatar";
+import { BackButton } from "@/components/ui/BackButton";
 import { ROLE_LABEL } from "@/routes/navConfig";
 import type { Role } from "@/types";
 import { cx } from "@/lib/cx";
@@ -18,8 +19,11 @@ export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?
   const { theme, toggleTheme, role, setRole, notifications } = useStore();
   const [roleOpen, setRoleOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const unread = notifications.filter((n) => !n.read).length;
   const notifTarget = role === "resident" ? "/resident/notifications" : role === "operator" ? "/operator/alerts" : "/developer";
+  const home = ROLE_ROUTES[role];
+  const showBack = location.pathname !== home;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur md:px-6">
@@ -29,6 +33,8 @@ export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?
       >
         <Menu size={18} />
       </button>
+
+      {showBack ? <BackButton to={home} /> : null}
 
       <h1 className="truncate text-base font-semibold text-primary md:text-lg">{title}</h1>
 
@@ -64,7 +70,7 @@ export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?
             <Avatar name={role === "resident" ? "Alex Perera" : role === "operator" ? "Ops Team" : "JK Developer"} size="sm" />
             <span className="hidden text-left leading-tight sm:block">
               <span className="block text-xs font-semibold text-primary">{ROLE_LABEL[role]}</span>
-              <span className="block text-[10px] text-tertiary">Switch role (demo)</span>
+              <span className="block text-[10px] text-tertiary">Account</span>
             </span>
             <ChevronDown size={14} className="text-tertiary" />
           </button>

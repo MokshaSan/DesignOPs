@@ -21,7 +21,7 @@ export function Toggle({ checked, onChange, size = "md", disabled, ...aria }: To
       className={cx(
         dims,
         "relative inline-flex shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:opacity-50",
-        checked ? "bg-brand-600" : "bg-surface-raised border border-border-strong",
+        checked ? "bg-brand-600 dark:bg-brand-300" : "bg-surface-raised border border-border-strong",
       )}
       {...aria}
     >
