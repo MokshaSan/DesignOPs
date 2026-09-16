@@ -21,7 +21,7 @@ export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?
   const navigate = useNavigate();
   const location = useLocation();
   const unread = notifications.filter((n) => !n.read).length;
-  const notifTarget = role === "resident" ? "/resident/notifications" : role === "operator" ? "/operator/alerts" : "/developer";
+  const notifTarget = role === "resident" ? "/resident/notifications" : role === "operator" ? "/operator/alerts" : "/developer/notifications";
   const home = ROLE_ROUTES[role];
   const showBack = location.pathname !== home;
 

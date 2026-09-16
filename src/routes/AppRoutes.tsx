@@ -27,6 +27,7 @@ import { DeveloperDashboard } from "@/pages/developer/Dashboard";
 import { DeveloperAnalytics } from "@/pages/developer/Analytics";
 import { DeveloperProperties } from "@/pages/developer/Properties";
 import { DeveloperConfiguration } from "@/pages/developer/Configuration";
+import { ResidentNotifications as DeveloperNotifications } from "@/pages/resident/Notifications";
 
 export function AppRoutes() {
   return (
@@ -63,6 +64,7 @@ export function AppRoutes() {
         <Route path="analytics" element={<DeveloperAnalytics />} />
         <Route path="properties" element={<DeveloperProperties />} />
         <Route path="configuration" element={<DeveloperConfiguration />} />
+        <Route path="notifications" element={<DeveloperNotifications />} />
       </Route>
 
       <Route path="*" element={<Landing />} />

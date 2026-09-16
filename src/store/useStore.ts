@@ -6,6 +6,7 @@ import type {
   Automation,
   Device,
   MaintenanceItem,
+  Property,
   ResidentTier,
   Role,
   Scene,
@@ -18,6 +19,7 @@ import {
   SEED_DEVICES,
   SEED_MAINTENANCE,
   SEED_NOTIFICATIONS,
+  PROPERTIES,
   SEED_SCENES,
   SEED_VISITORS,
 } from "@/data/seed";
@@ -35,6 +37,7 @@ interface AppState {
   notifications: AppNotification[];
   maintenance: MaintenanceItem[];
   alerts: AlertItem[];
+  properties: Property[];
   activityLog: { id: string; text: string; time: string }[];
   lastActivatedScene: string | null;
 
@@ -64,6 +67,8 @@ interface AppState {
 
   acknowledgeAlert: (id: string) => void;
   updateMaintenanceStatus: (id: string, status: MaintenanceItem["status"]) => void;
+  addProperty: (property: Property) => void;
+  removeProperty: (id: string) => void;
 
   logActivity: (text: string) => void;
 }
@@ -89,6 +94,7 @@ export const useStore = create<AppState>()(
       notifications: SEED_NOTIFICATIONS,
       maintenance: SEED_MAINTENANCE,
       alerts: SEED_ALERTS,
+      properties: PROPERTIES,
       activityLog: [
         { id: uid("log"), text: "Evening Arrival activated", time: "18:24" },
         { id: uid("log"), text: "AC set to 24°C", time: "18:25" },
@@ -169,12 +175,16 @@ export const useStore = create<AppState>()(
       updateMaintenanceStatus: (id, status) =>
         set((s) => ({ maintenance: s.maintenance.map((m) => (m.id === id ? { ...m, status } : m)) })),
 
+      addProperty: (property) => set((s) => ({ properties: [property, ...s.properties] })),
+
+      removeProperty: (id) => set((s) => ({ properties: s.properties.filter((property) => property.id !== id) })),
+
       logActivity: (text) =>
         set((s) => ({ activityLog: [{ id: uid("log"), text, time: nowLabel() }, ...s.activityLog].slice(0, 30) })),
     }),
     {
       name: "jk-smart-living-store",
-      partialize: (s) => ({ theme: s.theme, role: s.role, residentTier: s.residentTier }),
+      partialize: (s) => ({ theme: s.theme, role: s.role, residentTier: s.residentTier, properties: s.properties }),
     },
   ),
 );
