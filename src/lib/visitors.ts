@@ -14,6 +14,9 @@ type Row = {
   risk_reason: string;
   status: string;
   pass_code: string;
+  host_name: string | null;
+  destination: string | null;
+  purpose: string | null;
   created_at: string;
 };
 
@@ -23,6 +26,9 @@ function fromRow(row: Row): VisitorRequest {
     name: row.name,
     type: row.type as VisitorType,
     unitId: row.unit_id,
+    hostName: row.host_name ?? undefined,
+    destination: row.destination ?? undefined,
+    purpose: row.purpose ?? undefined,
     requestedFor: row.requested_for,
     windowStart: row.window_start,
     windowEnd: row.window_end,
@@ -49,6 +55,9 @@ export async function persistVisitorRequest(v: VisitorRequest, contact?: string)
     risk_reason: v.riskReason,
     status: v.status,
     pass_code: v.passCode,
+    host_name: v.hostName ?? null,
+    destination: v.destination ?? null,
+    purpose: v.purpose ?? null,
   });
 }
 

@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
+import { AccessPassCard } from "@/components/visitors/AccessPassCard";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
 import { useStore, useResidentDevices } from "@/store/useStore";
 import type { VisitorRequest, VisitorType } from "@/types";
@@ -39,7 +40,10 @@ export function ResidentAccess() {
       name,
       type,
       unitId: CURRENT_UNIT.id,
-      requestedFor: "Today",
+      hostName: CURRENT_UNIT.residentName,
+      destination: `${CURRENT_UNIT.tower} · Unit ${CURRENT_UNIT.id}`,
+      purpose: type,
+      requestedFor: new Date().toISOString().slice(0, 10),
       windowStart: start,
       windowEnd: end,
       riskLevel: "low",
@@ -159,12 +163,9 @@ export function ResidentAccess() {
 
       <Modal open={passOpen} onClose={() => setPassOpen(false)} title="Access Granted">
         {createdPass && (
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <AccessPassCard visitor={createdPass} />
             <PassQRCode value={`${window.location.origin}/visitor/pass/${createdPass.id}`} />
-            <div>
-              <p className="text-base font-semibold text-primary">{createdPass.name}</p>
-              <p className="text-xs capitalize text-tertiary">{createdPass.type}</p>
-            </div>
             <Badge tone="success">
               Valid {createdPass.windowStart}–{createdPass.windowEnd} today
             </Badge>

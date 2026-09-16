@@ -116,6 +116,21 @@ body {
   background-size: 22px 22px;
 }
 
+.nestura-wordmark {
+  color: #fff;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.35),
+    0 0 28px rgba(199, 210, 254, 0.28),
+    0 0 54px rgba(129, 140, 248, 0.18);
+  transition: text-shadow 0.28s ease, filter 0.28s ease;
+}
+.nestura-wordmark:hover {
+  text-shadow:
+    0 0 14px rgba(255, 255, 255, 0.95),
+    0 0 36px rgba(255, 255, 255, 0.55),
+    0 0 70px rgba(191, 219, 254, 0.55);
+}
+
 .card-glow {
   position: relative;
   isolation: isolate;

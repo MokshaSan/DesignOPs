@@ -58,7 +58,7 @@ export function VisitorRequestCard({
         <div className="flex gap-2">
           {onApprove && (
             <Button size="sm" className="flex-1" onClick={() => onApprove(visitor.id)}>
-              <Check size={13} /> Approve
+              <Check size={13} /> Grant access
             </Button>
           )}
           {onReject && (

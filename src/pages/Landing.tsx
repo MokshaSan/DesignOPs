@@ -56,20 +56,23 @@ export function Landing() {
     if (!el) return;
 
     const idle =
-      "linear-gradient(180deg, #ffffff 0%, #e0e7ff 55%, #c7d2fe 100%)";
-    el.style.backgroundImage = idle;
-    el.style.filter = "drop-shadow(0 10px 28px rgba(0,0,0,0.45))";
+      "drop-shadow(0 0 18px rgba(255,255,255,0.28)) drop-shadow(0 0 42px rgba(165,180,252,0.28))";
+    el.style.filter = idle;
 
-    const move = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width) * 100;
-      const y = ((e.clientY - r.top) / r.height) * 100;
-      el.style.backgroundImage = `radial-gradient(circle 480px at ${x}% ${y}%, #ffffff 0%, #eef2ff 20%, #c7d2fe 45%, #a5b4fc 70%, #e0e7ff 100%)`;
-      el.style.filter = "drop-shadow(0 0 26px rgba(165,180,252,0.42)) drop-shadow(0 0 52px rgba(99,102,241,0.32))";
+    const enter = () => {
+      el.style.filter =
+        "drop-shadow(0 0 22px rgba(255,255,255,0.85)) drop-shadow(0 0 56px rgba(191,219,254,0.7)) drop-shadow(0 0 90px rgba(129,140,248,0.45))";
+    };
+    const leave = () => {
+      el.style.filter = idle;
     };
 
-    window.addEventListener("pointermove", move, { passive: true });
-    return () => window.removeEventListener("pointermove", move);
+    el.addEventListener("pointerenter", enter);
+    el.addEventListener("pointerleave", leave);
+    return () => {
+      el.removeEventListener("pointerenter", enter);
+      el.removeEventListener("pointerleave", leave);
+    };
   }, []);
 
   function go(to: string) {
@@ -140,7 +143,7 @@ export function Landing() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.12, ease }}
-              className="font-display relative mt-4 cursor-default select-none text-[clamp(56px,12.5vw,168px)] font-semibold leading-none tracking-[0.16em] text-transparent outline-none [background-clip:text] [-webkit-background-clip:text]"
+              className="nestura-wordmark font-display relative mt-4 cursor-default select-none text-[clamp(56px,12.5vw,168px)] font-semibold leading-none tracking-[0.18em] text-white outline-none"
             >
               NESTURA
             </motion.h1>

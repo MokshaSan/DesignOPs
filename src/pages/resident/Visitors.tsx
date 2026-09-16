@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Users } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { VisitorRequestCard } from "@/components/visitors/VisitorRequestCard";
+import { AccessPassCard } from "@/components/visitors/AccessPassCard";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
 import { CURRENT_UNIT } from "@/data/seed";
 import { TIER_PERMISSIONS } from "@/data/permissions";
@@ -15,13 +17,38 @@ export function ResidentVisitors() {
   const canManage = TIER_PERMISSIONS[residentTier].access;
   const mine = visitors.filter((v) => v.unitId === CURRENT_UNIT.id);
   const [showPassFor, setShowPassFor] = useState<VisitorRequest | null>(null);
+  const [grantFor, setGrantFor] = useState<VisitorRequest | null>(null);
+  const [grantDate, setGrantDate] = useState("");
+  const [grantStart, setGrantStart] = useState("");
+  const [grantEnd, setGrantEnd] = useState("");
 
-  function handleApprove(id: string) {
-    approveVisitor(id);
+  function openGrant(id: string) {
     const v = mine.find((x) => x.id === id);
-    addNotification({ icon: "ShieldCheck", title: "Visitor approved", body: `${v?.name} can now enter.`, category: "visitor" });
-    const updated = mine.find((x) => x.id === id);
-    if (updated) setShowPassFor({ ...updated, status: "approved" });
+    if (!v) return;
+    setGrantFor(v);
+    setGrantDate(v.requestedFor.includes("-") ? v.requestedFor : new Date().toISOString().slice(0, 10));
+    setGrantStart(v.windowStart);
+    setGrantEnd(v.windowEnd);
+  }
+
+  function confirmGrant() {
+    if (!grantFor || grantStart >= grantEnd) return;
+    approveVisitor(grantFor.id, { requestedFor: grantDate, windowStart: grantStart, windowEnd: grantEnd });
+    addNotification({
+      icon: "ShieldCheck",
+      title: "Visitor approved",
+      body: `${grantFor.name} can enter ${grantStart}–${grantEnd}.`,
+      category: "visitor",
+    });
+    const issued = {
+      ...grantFor,
+      status: "approved" as const,
+      requestedFor: grantDate,
+      windowStart: grantStart,
+      windowEnd: grantEnd,
+    };
+    setGrantFor(null);
+    setShowPassFor(issued);
   }
 
   function handleReject(id: string) {
@@ -35,7 +62,9 @@ export function ResidentVisitors() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Visitors</h1>
-        <p className="mt-1 text-sm text-tertiary">Approve access requests and manage active passes for Unit {CURRENT_UNIT.label}.</p>
+        <p className="mt-1 text-sm text-tertiary">
+          Grant timed access for Unit {CURRENT_UNIT.id} — from this time to this time.
+        </p>
       </div>
 
       {pending.length > 0 && (
@@ -51,7 +80,7 @@ export function ResidentVisitors() {
               <VisitorRequestCard
                 key={v.id}
                 visitor={v}
-                onApprove={canManage ? handleApprove : undefined}
+                onApprove={canManage ? openGrant : undefined}
                 onReject={canManage ? handleReject : undefined}
               />
             ))}
@@ -77,18 +106,56 @@ export function ResidentVisitors() {
         )}
       </div>
 
-      <Modal open={!!showPassFor} onClose={() => setShowPassFor(null)} title="Access Pass">
-        {showPassFor && (
-          <div className="flex flex-col items-center gap-4 text-center">
-            <PassQRCode value={`${window.location.origin}/visitor/pass/${showPassFor.id}`} />
+      <Modal open={!!grantFor} onClose={() => setGrantFor(null)} title="Grant timed access">
+        {grantFor && (
+          <div className="space-y-4">
+            <p className="text-sm text-secondary">
+              Set when <span className="font-semibold text-primary">{grantFor.name}</span> may enter Unit {grantFor.unitId}.
+            </p>
             <div>
-              <p className="text-base font-semibold text-primary">{showPassFor.name}</p>
-              <p className="text-xs capitalize text-tertiary">{showPassFor.type}</p>
+              <label className="mb-1.5 block text-xs font-medium text-secondary">Date</label>
+              <input
+                type="date"
+                value={grantDate}
+                onChange={(e) => setGrantDate(e.target.value)}
+                className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-primary"
+              />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-secondary">From</label>
+                <input
+                  type="time"
+                  value={grantStart}
+                  onChange={(e) => setGrantStart(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-secondary">To</label>
+                <input
+                  type="time"
+                  value={grantEnd}
+                  onChange={(e) => setGrantEnd(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-primary"
+                />
+              </div>
+            </div>
+            <Button className="w-full" onClick={confirmGrant} disabled={!grantDate || grantStart >= grantEnd}>
+              Issue digital access card
+            </Button>
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={!!showPassFor} onClose={() => setShowPassFor(null)} title="Digital access card">
+        {showPassFor && (
+          <div className="flex flex-col items-center gap-4">
+            <AccessPassCard visitor={showPassFor} />
+            <PassQRCode value={`${window.location.origin}/visitor/pass/${showPassFor.id}`} />
             <Badge tone="success">
-              Valid {showPassFor.windowStart}–{showPassFor.windowEnd} today
+              Valid {showPassFor.windowStart}–{showPassFor.windowEnd}
             </Badge>
-            <p className="text-xs text-tertiary">Code: {showPassFor.passCode}</p>
           </div>
         )}
       </Modal>

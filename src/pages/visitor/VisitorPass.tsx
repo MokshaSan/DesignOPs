@@ -3,12 +3,12 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock, ScanLine, XCircle } from "lucide-react";
 import { useStore } from "@/store/useStore";
+import { AccessPassCard } from "@/components/visitors/AccessPassCard";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
 import { NesturaLockup } from "@/components/brand/NesturaMark";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { BackButton } from "@/components/ui/BackButton";
-import { CURRENT_UNIT } from "@/data/seed";
 
 function parseTimeToday(hhmm: string) {
   const [h, m] = hhmm.split(":").map(Number);
@@ -82,13 +82,7 @@ export function VisitorPass() {
         <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-tertiary">Nestura Smart Living</p>
         <h1 className="mt-1 text-lg font-bold text-primary">Visitor Access</h1>
 
-        <div className="mt-5">
-          <p className="text-xl font-semibold text-primary">{visitor.name}</p>
-          <p className="text-sm capitalize text-tertiary">{visitor.type}</p>
-          <p className="mt-1 text-xs text-tertiary">
-            {CURRENT_UNIT.tower} · Unit {visitor.unitId === "12A" ? "W001" : visitor.unitId}
-          </p>
-        </div>
+        <AccessPassCard visitor={visitor} />
 
         <div className="my-5 flex justify-center">
           {visitor.status === "rejected" || isExpired ? (
