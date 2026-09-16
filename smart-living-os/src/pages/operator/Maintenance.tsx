@@ -25,7 +25,7 @@ export default function OperatorMaintenance() {
               <Bot size={18} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">AI Predictive Maintenance</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">AI Supported Maintenance</p>
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 {requests.filter(r => r.aiPredicted && r.status === 'open').length} devices predicted to require maintenance within 7 days.
                 Proactive action could prevent {Math.round(requests.filter(r => r.aiPredicted).length * 2.5)} reactive truck rolls.

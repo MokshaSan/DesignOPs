@@ -30,6 +30,7 @@ import {
   QrCode,
   MapPin,
   Bot,
+  LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
 
@@ -65,6 +66,7 @@ export const ICONS: Record<string, LucideIcon> = {
   QrCode,
   MapPin,
   Bot,
+  LayoutGrid,
 };
 
 export function getIcon(name: string): LucideIcon {

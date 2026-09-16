@@ -4,8 +4,11 @@ import type {
   Automation,
   Device,
   EnergyPoint,
+  FloorPlanAmenity,
+  FloorPlanUnit,
   MaintenanceItem,
   Property,
+  ResidentTier,
   Scene,
   Unit,
   VisitorRequest,
@@ -246,4 +249,68 @@ export const PORTFOLIO_ENERGY = [
   { label: "Tower B", value: -9 },
   { label: "Cinnamon Grand", value: -18 },
   { label: "Ocean Heights", value: -6 },
+];
+
+const FP_RESIDENT_NAMES = [
+  "Amara Silva", "Ravi Perera", "Nadia Fernando", "Kavin Raj",
+  "Meera Jayawardena", "Ismail Khan", "Dilini Wijesinghe", "Samuel Rajkumar",
+  "Tharaka Fernando", "Zara Ahmed", "Dinesh Gunasekara", "Priya Sharma",
+  "Lakmal De Silva", "Farah Hussain", "Charith Wickramasinghe", "Nisha Mendis",
+  "Ruwan Bandara", "Saman Liyanage", "Fathima Nazar", "Kusal Samaraweera",
+  "Madhavi Perera", "Ashan Fernando", "Dilrukshi Alahapperuma", "Imran Mohamed",
+];
+
+const FP_TIERS: ResidentTier[] = ["owner", "occupier", "tenant"];
+
+function fpHash(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+export const SEED_FLOOR_UNITS: FloorPlanUnit[] = (() => {
+  const units: FloorPlanUnit[] = [];
+  for (let floor = 3; floor <= 20; floor++) {
+    ["A", "B", "C", "D"].forEach((letter, i) => {
+      const label = `${floor}${letter}`;
+      const hash = fpHash(label);
+      const occupied = hash % 5 !== 0;
+      const residentName = occupied
+        ? FP_RESIDENT_NAMES[hash % FP_RESIDENT_NAMES.length]
+        : "";
+      const tier = occupied ? FP_TIERS[(hash >> 3) % FP_TIERS.length] : "tenant";
+      units.push({
+        id: label,
+        levelCode: `L${floor}`,
+        label,
+        occupied,
+        residentName,
+        tier,
+        devices: occupied ? 3 + (hash % 8) : 0,
+      });
+    });
+  }
+  return units;
+})();
+
+export const SEED_FLOOR_AMENITIES: FloorPlanAmenity[] = [
+  { id: "amenity-gym", name: "Fitness Center & Gym", levelCode: "L1", hours: "5:00 AM – 11:00 PM", status: "open" },
+  { id: "amenity-yoga", name: "Yoga & Wellness Studio", levelCode: "L1", hours: "6:00 AM – 9:00 PM", status: "open" },
+  { id: "amenity-kids", name: "Kids' Play Zone", levelCode: "L1", hours: "8:00 AM – 8:00 PM", status: "open" },
+  { id: "amenity-coworking", name: "Co-working Lounge", levelCode: "L1", hours: "6:00 AM – 12:00 AM", status: "open" },
+  { id: "amenity-business", name: "Business Center & Meeting Rooms", levelCode: "L2", hours: "8:00 AM – 8:00 PM", status: "open" },
+  { id: "amenity-guest-suites", name: "Guest Suites", levelCode: "L2", hours: "Reception required", status: "open" },
+  { id: "amenity-library", name: "Library Lounge", levelCode: "L2", hours: "9:00 AM – 9:00 PM", status: "open" },
+  { id: "amenity-concierge", name: "Main Lobby & Concierge", levelCode: "G", hours: "24 / 7", status: "open" },
+  { id: "amenity-mailroom", name: "Mailroom & Parcel Room", levelCode: "G", hours: "24 / 7 (staffed 8 AM – 8 PM)", status: "open" },
+  { id: "amenity-security", name: "Security Office", levelCode: "G", hours: "24 / 7", status: "open" },
+  { id: "amenity-resident-parking", name: "Resident Parking", levelCode: "B1", hours: "24 / 7", status: "open" },
+  { id: "amenity-storage", name: "Storage Lockers", levelCode: "B1", hours: "Access via card", status: "open" },
+  { id: "amenity-visitor-parking", name: "Visitor Parking", levelCode: "B2", hours: "24 / 7", status: "open" },
+  { id: "amenity-ev", name: "EV Charging Bay", levelCode: "B2", hours: "24 / 7", status: "open" },
+  { id: "amenity-pool", name: "Infinity Pool & Sundeck", levelCode: "R", hours: "6:00 AM – 10:00 PM", status: "open" },
+  { id: "amenity-sky-lounge", name: "Sky Lounge & BBQ Deck", levelCode: "R", hours: "4:00 PM – 12:00 AM", status: "open" },
+  { id: "amenity-observation", name: "Observation Terrace", levelCode: "R", hours: "6:00 AM – 10:00 PM", status: "open" },
 ];

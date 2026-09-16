@@ -26,6 +26,7 @@ export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
     { to: "/operator/maintenance", label: "Maintenance", icon: "Wrench" },
     { to: "/operator/visitors", label: "Visitors", icon: "Users" },
     { to: "/operator/cctv", label: "CCTV", icon: "Camera" },
+    { to: "/operator/floor-plan", label: "Floor Plan", icon: "LayoutGrid" },
     { to: "/operator/services", label: "Services", icon: "Briefcase" },
   ],
   developer: [

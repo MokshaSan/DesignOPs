@@ -22,6 +22,7 @@ import { OperatorMaintenance } from "@/pages/operator/Maintenance";
 import { OperatorVisitors } from "@/pages/operator/Visitors";
 import { OperatorCCTV } from "@/pages/operator/CCTV";
 import { OperatorServices } from "@/pages/operator/Services";
+import { OperatorFloorPlan } from "@/pages/operator/FloorPlan";
 
 import { DeveloperDashboard } from "@/pages/developer/Dashboard";
 import { DeveloperAnalytics } from "@/pages/developer/Analytics";
@@ -55,6 +56,7 @@ export function AppRoutes() {
         <Route path="maintenance" element={<OperatorMaintenance />} />
         <Route path="visitors" element={<OperatorVisitors />} />
         <Route path="cctv" element={<OperatorCCTV />} />
+        <Route path="floor-plan" element={<OperatorFloorPlan />} />
         <Route path="services" element={<OperatorServices />} />
       </Route>
 

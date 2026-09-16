@@ -5,6 +5,8 @@ import type {
   AppNotification,
   Automation,
   Device,
+  FloorPlanAmenity,
+  FloorPlanUnit,
   MaintenanceItem,
   ResidentTier,
   Role,
@@ -16,6 +18,8 @@ import {
   SEED_ALERTS,
   SEED_AUTOMATIONS,
   SEED_DEVICES,
+  SEED_FLOOR_AMENITIES,
+  SEED_FLOOR_UNITS,
   SEED_MAINTENANCE,
   SEED_NOTIFICATIONS,
   SEED_SCENES,
@@ -35,6 +39,8 @@ interface AppState {
   notifications: AppNotification[];
   maintenance: MaintenanceItem[];
   alerts: AlertItem[];
+  floorUnits: FloorPlanUnit[];
+  floorAmenities: FloorPlanAmenity[];
   activityLog: { id: string; text: string; time: string }[];
   lastActivatedScene: string | null;
 
@@ -65,6 +71,14 @@ interface AppState {
   acknowledgeAlert: (id: string) => void;
   updateMaintenanceStatus: (id: string, status: MaintenanceItem["status"]) => void;
 
+  addFloorUnit: (unit: Omit<FloorPlanUnit, "id">) => void;
+  updateFloorUnit: (id: string, patch: Partial<FloorPlanUnit>) => void;
+  deleteFloorUnit: (id: string) => void;
+
+  addFloorAmenity: (amenity: Omit<FloorPlanAmenity, "id">) => void;
+  updateFloorAmenity: (id: string, patch: Partial<FloorPlanAmenity>) => void;
+  deleteFloorAmenity: (id: string) => void;
+
   logActivity: (text: string) => void;
 }
 
@@ -89,6 +103,8 @@ export const useStore = create<AppState>()(
       notifications: SEED_NOTIFICATIONS,
       maintenance: SEED_MAINTENANCE,
       alerts: SEED_ALERTS,
+      floorUnits: SEED_FLOOR_UNITS,
+      floorAmenities: SEED_FLOOR_AMENITIES,
       activityLog: [
         { id: uid("log"), text: "Evening Arrival activated", time: "18:24" },
         { id: uid("log"), text: "AC set to 24°C", time: "18:25" },
@@ -169,12 +185,44 @@ export const useStore = create<AppState>()(
       updateMaintenanceStatus: (id, status) =>
         set((s) => ({ maintenance: s.maintenance.map((m) => (m.id === id ? { ...m, status } : m)) })),
 
+      addFloorUnit: (unit) =>
+        set((s) => {
+          const id = unit.label.toUpperCase();
+          if (s.floorUnits.some((u) => u.id === id)) return s;
+          return { floorUnits: [...s.floorUnits, { ...unit, id }] };
+        }),
+
+      updateFloorUnit: (id, patch) =>
+        set((s) => ({
+          floorUnits: s.floorUnits.map((u) => (u.id === id ? { ...u, ...patch, id: patch.label ? patch.label.toUpperCase() : u.id } : u)),
+        })),
+
+      deleteFloorUnit: (id) =>
+        set((s) => ({ floorUnits: s.floorUnits.filter((u) => u.id !== id) })),
+
+      addFloorAmenity: (amenity) =>
+        set((s) => ({
+          floorAmenities: [{ ...amenity, id: uid("fp") }, ...s.floorAmenities],
+        })),
+
+      updateFloorAmenity: (id, patch) =>
+        set((s) => ({ floorAmenities: s.floorAmenities.map((a) => (a.id === id ? { ...a, ...patch } : a)) })),
+
+      deleteFloorAmenity: (id) =>
+        set((s) => ({ floorAmenities: s.floorAmenities.filter((a) => a.id !== id) })),
+
       logActivity: (text) =>
         set((s) => ({ activityLog: [{ id: uid("log"), text, time: nowLabel() }, ...s.activityLog].slice(0, 30) })),
     }),
     {
       name: "jk-smart-living-store",
-      partialize: (s) => ({ theme: s.theme, role: s.role, residentTier: s.residentTier }),
+      partialize: (s) => ({
+        theme: s.theme,
+        role: s.role,
+        residentTier: s.residentTier,
+        floorUnits: s.floorUnits,
+        floorAmenities: s.floorAmenities,
+      }),
     },
   ),
 );

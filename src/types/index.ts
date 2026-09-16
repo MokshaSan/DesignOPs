@@ -154,3 +154,21 @@ export interface ChatMessage {
   content: string;
   time: string;
 }
+
+export interface FloorPlanUnit {
+  id: string;
+  levelCode: string;
+  label: string;
+  occupied: boolean;
+  residentName: string;
+  tier: ResidentTier;
+  devices: number;
+}
+
+export interface FloorPlanAmenity {
+  id: string;
+  name: string;
+  levelCode: string;
+  hours: string;
+  status: "open" | "maintenance" | "closed";
+}
