@@ -95,11 +95,24 @@ export function OperatorServices() {
                   {r.notes && <p className="mt-1 text-xs text-tertiary">{r.notes}</p>}
                 </div>
               </div>
-              {r.status !== "completed" && (
-                <Button size="sm" variant="outline" onClick={() => advance(r)}>
-                  Mark as {STATUS_FLOW[STATUS_FLOW.indexOf(r.status) + 1].replace("-", " ")} <ChevronRight size={13} />
-                </Button>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={r.status}
+                  onChange={(e) => updateServiceRequestStatus(r.id, e.target.value as ServiceRequest["status"])}
+                  className="rounded-lg border border-border bg-bg px-2 py-1.5 text-xs text-primary"
+                >
+                  {STATUS_FLOW.map((status) => (
+                    <option key={status} value={status}>
+                      {STATUS_LABEL[status]}
+                    </option>
+                  ))}
+                </select>
+                {r.status !== "completed" && (
+                  <Button size="sm" variant="outline" onClick={() => advance(r)}>
+                    Mark as {STATUS_FLOW[STATUS_FLOW.indexOf(r.status) + 1].replace("-", " ")} <ChevronRight size={13} />
+                  </Button>
+                )}
+              </div>
             </Card>
           );
         })}

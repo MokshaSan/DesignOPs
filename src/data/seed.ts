@@ -199,36 +199,7 @@ export const SEED_MAINTENANCE: MaintenanceItem[] = [
   { id: "m4", deviceId: "sensor-4c", deviceName: "Temperature Sensor — 4C", unitId: "4C", risk: "low", reason: "Minor calibration drift", predictedWindow: "Within 30 days", status: "predicted" },
 ];
 
-export const SEED_ALERTS: AlertItem[] = [
-  {
-    id: "a1",
-    severity: "critical",
-    title: "Smoke sensor spike",
-    location: "Tower A · Floor 14",
-    time: "4m ago",
-    aiConfidence: 78,
-    aiNote: "Single-sensor spike with no matching event on nearby sensors. Recommend verification before building-wide escalation.",
-    acknowledged: false,
-  },
-  {
-    id: "a2",
-    severity: "warning",
-    title: "Temperature sensor drifting",
-    location: "Unit 12A",
-    time: "22m ago",
-    aiConfidence: 84,
-    aiNote: "Battery and latency trend indicate failure risk within 7 days.",
-    acknowledged: false,
-  },
-  {
-    id: "a3",
-    severity: "info",
-    title: "AC filter maintenance due",
-    location: "8 units · Tower A",
-    time: "2h ago",
-    acknowledged: true,
-  },
-];
+export const SEED_ALERTS: AlertItem[] = [];
 
 export const ENERGY_TODAY: EnergyPoint[] = [
   { label: "6AM", kwh: 0.4 }, { label: "8AM", kwh: 0.9 }, { label: "10AM", kwh: 0.6 },

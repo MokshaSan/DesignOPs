@@ -8,6 +8,7 @@ export interface DemoAccount {
   email: string;
   role: Role;
   tier?: ResidentTier;
+  unitId: string;
   to: string;
   label: string;
   detail: string;
@@ -21,6 +22,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: "john.owner@example.com",
     role: "resident",
     tier: "owner",
+    unitId: "12A",
     to: "/resident",
     label: "Owner · W001",
     detail: "Full unit control, tenancy & household",
@@ -31,6 +33,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: "resident@example.com",
     role: "resident",
     tier: "occupier",
+    unitId: "12A",
     to: "/resident",
     label: "Occupier · W001",
     detail: "Home, scenes, visitors — no billing",
@@ -41,6 +44,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: "sarah.tenant@example.com",
     role: "resident",
     tier: "tenant",
+    unitId: "12A",
     to: "/resident",
     label: "Tenant · W001",
     detail: "Smart home only during tenancy",
@@ -51,6 +55,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     email: "david.household@example.com",
     role: "resident",
     tier: "occupier",
+    unitId: "12A",
     to: "/resident",
     label: "Household member · W001",
     detail: "Shared home access",
@@ -60,6 +65,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     name: "Maya Jayawardena",
     email: "operator@example.com",
     role: "operator",
+    unitId: "Tower A",
     to: "/operator",
     label: "Building Operator",
     detail: "Operations, visitors, CCTV",
@@ -69,6 +75,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     name: "Arjun Keells",
     email: "developer@example.com",
     role: "developer",
+    unitId: "Portfolio",
     to: "/developer",
     label: "Developer",
     detail: "Portfolio intelligence",
@@ -78,6 +85,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     name: "Priya Silva",
     email: "visitor@example.com",
     role: "visitor",
+    unitId: "12A",
     to: "/visitor/request",
     label: "Visitor",
     detail: "Request a visit — no building CCTV",

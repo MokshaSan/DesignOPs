@@ -73,7 +73,10 @@ export function useAIScene() {
 }
 
 export function useAIAssistant() {
-  return useAsync((message: string, role: string) => post<{ reply: string; source: string }>("/api/ai/assistant", { message, role }));
+  return useAsync(
+    (message: string, role: string, context?: { unit?: string; floorPlan?: { amenities: unknown[]; units: unknown[] } }) =>
+      post<{ reply: string; source: string }>("/api/ai/assistant", { message, role, ...context }),
+  );
 }
 
 export function useAIEnergyInsight() {

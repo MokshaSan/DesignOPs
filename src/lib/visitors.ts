@@ -17,6 +17,8 @@ type Row = {
   host_name: string | null;
   destination: string | null;
   purpose: string | null;
+  access_enabled: boolean | null;
+  door_unlocked: boolean | null;
   created_at: string;
 };
 
@@ -37,6 +39,8 @@ function fromRow(row: Row): VisitorRequest {
     status: row.status as VisitorStatus,
     passCode: row.pass_code,
     createdAt: new Date(row.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    accessEnabled: row.access_enabled ?? row.status === "approved",
+    doorUnlocked: row.door_unlocked ?? false,
   };
 }
 
@@ -58,6 +62,8 @@ export async function persistVisitorRequest(v: VisitorRequest, contact?: string)
     host_name: v.hostName ?? null,
     destination: v.destination ?? null,
     purpose: v.purpose ?? null,
+    access_enabled: v.accessEnabled ?? v.status === "approved",
+    door_unlocked: v.doorUnlocked ?? false,
   });
 }
 
@@ -71,4 +77,23 @@ export async function fetchVisitorRequests(): Promise<VisitorRequest[]> {
   const { data, error } = await supabase.from("visitor_requests").select("*").order("created_at", { ascending: false });
   if (error || !data) return [];
   return (data as Row[]).map(fromRow);
+}
+
+export function subscribeVisitorRequests(onChange: (rows: VisitorRequest[]) => void) {
+  if (!supabase) return () => undefined;
+  const channel = supabase
+    .channel("nestura-visitor-requests")
+    .on("postgres_changes", { event: "*", schema: "public", table: "visitor_requests" }, () => {
+      void fetchVisitorRequests().then(onChange);
+    })
+    .subscribe();
+  const poll = window.setInterval(() => {
+    void fetchVisitorRequests().then((rows) => {
+      if (rows.length) onChange(rows);
+    });
+  }, 8000);
+  return () => {
+    window.clearInterval(poll);
+    if (supabase) void supabase.removeChannel(channel);
+  };
 }

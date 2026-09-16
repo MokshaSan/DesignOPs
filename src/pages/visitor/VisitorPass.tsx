@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock, ScanLine, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, DoorOpen, Lock, XCircle } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { AccessPassCard } from "@/components/visitors/AccessPassCard";
-import { PassQRCode } from "@/components/visitors/PassQRCode";
 import { NesturaLockup } from "@/components/brand/NesturaMark";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -27,10 +26,13 @@ function formatCountdown(ms: number) {
 
 export function VisitorPass() {
   const { id } = useParams();
-  const { visitors, expireVisitor } = useStore();
-  const visitor = visitors.find((v) => v.id === id);
+  const navigate = useNavigate();
+  const { visitors, expireVisitor, setVisitorDoor } = useStore();
+  const visitor = useMemo(
+    () => visitors.find((v) => v.id === id || v.passCode === id),
+    [visitors, id],
+  );
   const [now, setNow] = useState(Date.now());
-  const [scanned, setScanned] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -39,91 +41,88 @@ export function VisitorPass() {
 
   const windowEnd = visitor ? parseTimeToday(visitor.windowEnd).getTime() : 0;
   const remaining = windowEnd - now;
-  const isExpired = visitor?.status === "expired" || (visitor && remaining <= 0);
+  const windowOpen = visitor ? now >= parseTimeToday(visitor.windowStart).getTime() && remaining > 0 : false;
+  const live = visitor?.status === "approved" && visitor.accessEnabled !== false && windowOpen;
+  const isExpired = visitor?.status === "expired" || visitor?.status === "revoked" || (visitor && remaining <= 0 && visitor.status === "approved");
 
   useEffect(() => {
-    if (visitor && remaining <= 0 && visitor.status !== "expired") {
-      expireVisitor(visitor.id);
-    }
+    if (visitor && remaining <= 0 && visitor.status === "approved") expireVisitor(visitor.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining, visitor?.id]);
-
-  const statusLabel = useMemo(() => {
-    if (isExpired) return "Expired";
-    if (scanned || visitor?.status === "checked-in") return "Checked In";
-    if (visitor?.status === "approved") return "Valid Access";
-    if (visitor?.status === "rejected") return "Access Denied";
-    return "Pending Approval";
-  }, [isExpired, scanned, visitor?.status]);
 
   if (!visitor) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg p-6 text-center">
         <div>
-          <BackButton to="/" className="mb-6" />
+          <BackButton to="/visitor/request" className="mb-6" />
           <p className="text-lg font-semibold text-primary">Pass not found</p>
-          <p className="mt-1 text-sm text-tertiary">This access pass doesn't exist or has been removed.</p>
+          <p className="mt-1 text-sm text-tertiary">Enter your visitor ID on the request page.</p>
+          <Button className="mt-4" onClick={() => navigate("/visitor/request")}>
+            I already have an ID
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-bg bg-noise p-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 p-6 text-white">
       <div className="mb-4 w-full max-w-sm">
-        <BackButton to="/" />
+        <BackButton to="/visitor/request" light />
       </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 text-center shadow-soft"
+        className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/5 p-6 text-center shadow-2xl"
       >
-        <NesturaLockup height={44} className="mx-auto" />
-        <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-tertiary">Nestura Smart Living</p>
-        <h1 className="mt-1 text-lg font-bold text-primary">Visitor Access</h1>
+        <NesturaLockup height={44} onDark className="mx-auto" />
+        <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-white/50">Digital access card</p>
+        <p className="mt-1 font-mono text-sm tracking-[0.2em] text-violet-200">{visitor.passCode}</p>
 
-        <AccessPassCard visitor={visitor} />
+        <div className="mt-5">
+          <AccessPassCard visitor={visitor} />
+        </div>
 
-        <div className="my-5 flex justify-center">
-          {visitor.status === "rejected" || isExpired ? (
-            <div className="flex items-center justify-center rounded-2xl border border-border bg-surface-raised" style={{ height: 200, width: 200 }}>
-              <XCircle size={48} className="text-tertiary" />
-            </div>
+        <div className="mt-5 flex justify-center">
+          {visitor.status === "rejected" || isExpired || visitor.status === "revoked" ? (
+            <Badge tone="danger">{visitor.status === "revoked" ? "Deactivated by resident" : "Access denied"}</Badge>
+          ) : visitor.status === "pending" ? (
+            <Badge tone="warning">Waiting for resident approval</Badge>
+          ) : live ? (
+            <Badge tone="success">
+              <CheckCircle2 size={13} /> Active until {visitor.windowEnd}
+            </Badge>
           ) : (
-            <PassQRCode value={`${window.location.origin}/visitor/pass/${visitor.id}`} size={180} />
+            <Badge tone="neutral">Approved · outside window</Badge>
           )}
         </div>
 
-        <Badge
-          tone={statusLabel === "Valid Access" ? "success" : statusLabel === "Checked In" ? "brand" : statusLabel === "Expired" || statusLabel === "Access Denied" ? "danger" : "warning"}
-          className="justify-center px-4 py-1.5 text-sm"
-        >
-          {statusLabel === "Checked In" && <CheckCircle2 size={13} />}
-          {statusLabel}
-        </Badge>
-
-        <div className="mt-4 flex items-center justify-center gap-1.5 text-sm text-secondary">
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-sm text-white/70">
           <Clock size={14} />
-          {isExpired ? "This pass has expired" : `Valid ${visitor.windowStart}–${visitor.windowEnd} today`}
+          {visitor.windowStart}–{visitor.windowEnd} · {visitor.requestedFor}
         </div>
+        {live && <p className="mt-1 text-xs text-white/50">Time left {formatCountdown(remaining)}</p>}
 
-        {!isExpired && visitor.status === "approved" && (
-          <p className="mt-1 text-xs text-tertiary">Expires in {formatCountdown(remaining)}</p>
-        )}
-
-        {!isExpired && visitor.status === "approved" && !scanned && (
-          <Button className="mt-5 w-full" onClick={() => setScanned(true)}>
-            <ScanLine size={15} /> Simulate Security Scan
+        {live && (
+          <Button
+            className="mt-5 w-full rounded-full py-3"
+            variant={visitor.doorUnlocked ? "outline" : "primary"}
+            onClick={() => setVisitorDoor(visitor.id, !visitor.doorUnlocked)}
+          >
+            {visitor.doorUnlocked ? <Lock size={15} /> : <DoorOpen size={15} />}
+            {visitor.doorUnlocked ? "Lock the door" : "Unlock the door"}
           </Button>
         )}
 
-        {scanned && !isExpired && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-5 text-sm font-medium text-success">
-            Access granted — enjoy your visit!
-          </motion.p>
+        {visitor.doorUnlocked && live && (
+          <p className="mt-3 text-sm font-medium text-emerald-300">Door is unlocked for this visit.</p>
         )}
 
-        <p className="mt-5 text-[11px] text-tertiary">Code: {visitor.passCode} · Prototype for design competition demo</p>
+        {(visitor.status === "revoked" || visitor.accessEnabled === false) && visitor.status !== "pending" && (
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-sm text-rose-300">
+            <XCircle size={14} /> Resident turned this pass off
+          </p>
+        )}
       </motion.div>
     </div>
   );

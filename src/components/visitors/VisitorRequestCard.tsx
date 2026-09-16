@@ -13,6 +13,7 @@ const STATUS_TONE: Record<VisitorRequest["status"], "warning" | "success" | "dan
   rejected: "danger",
   "checked-in": "success",
   expired: "neutral",
+  revoked: "danger",
 };
 
 export function VisitorRequestCard({
@@ -31,13 +32,13 @@ export function VisitorRequestCard({
     <Card className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700 dark:text-brand-900">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7c3aed] text-white">
             <Icon size={17} />
           </div>
           <div>
             <p className="text-sm font-semibold text-primary">{visitor.name}</p>
             <p className="text-xs capitalize text-tertiary">
-              {visitor.type} {showUnit && `· Unit ${visitor.unitId}`}
+              {visitor.type} {showUnit && `· Unit ${visitor.unitId}`} · {visitor.passCode}
             </p>
           </div>
         </div>

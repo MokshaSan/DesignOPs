@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Send, Sparkles, X } from "lucide-react";
+import { Send, Sparkles, X } from "lucide-react";
+import { NesturaMark } from "@/components/brand/NesturaMark";
 import { useAIAssistant } from "@/hooks/useAI";
 import { useStore } from "@/store/useStore";
 import type { ChatMessage } from "@/types";
@@ -14,13 +15,16 @@ function uid() {
 
 export function AIAssistantWidget() {
   const role = useStore((s) => s.role);
+  const accountUnitId = useStore((s) => s.accountUnitId);
+  const floorAmenities = useStore((s) => s.floorAmenities);
+  const floorUnits = useStore((s) => s.floorUnits);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: uid(),
       role: "assistant",
-      content: "Hi, I'm Aria — your Smart Living assistant. Ask me for directions around The Meridian, or anything about your home.",
+      content: "Hi, I'm Nestura — your Smart Living assistant. Ask me for directions around The Meridian, or anything about your home.",
       time: "",
     },
   ]);
@@ -36,7 +40,10 @@ export function AIAssistantWidget() {
     const userMsg: ChatMessage = { id: uid(), role: "user", content: text, time: "" };
     setMessages((m) => [...m, userMsg]);
     setInput("");
-    const result = await run(text, role);
+    const result = await run(text, role, {
+      unit: accountUnitId,
+      floorPlan: { amenities: floorAmenities, units: floorUnits.slice(0, 40) },
+    });
     setMessages((m) => [
       ...m,
       {
@@ -59,12 +66,10 @@ export function AIAssistantWidget() {
             transition={{ type: "spring", bounce: 0.15, duration: 0.35 }}
             className="fixed bottom-24 right-4 z-50 flex h-[32rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl md:right-6"
           >
-            <div className="brand-mark flex items-center gap-3 border-b border-border px-4 py-3.5 text-white">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
-                <Bot size={16} />
-              </div>
+            <div className="brand-mark flex items-center gap-3 border-b border-border bg-brand-600 px-4 py-3.5 text-white">
+              <NesturaMark size={32} className="rounded-full bg-white/10" />
               <div className="leading-tight">
-                <p className="text-sm font-semibold">Aria</p>
+                <p className="text-sm font-semibold">Nestura</p>
                 <p className="text-[11px] text-white/75">Smart Living Assistant</p>
               </div>
               <button onClick={() => setOpen(false)} className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg hover:bg-white/15">
@@ -124,7 +129,7 @@ export function AIAssistantWidget() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask Aria anything..."
+                placeholder="Ask Nestura anything..."
                 className="h-10 flex-1 rounded-lg border border-border bg-bg px-3 text-sm text-primary placeholder:text-tertiary focus:border-brand-400 focus:outline-none"
               />
               <button
@@ -142,8 +147,8 @@ export function AIAssistantWidget() {
       <motion.button
         whileTap={{ scale: 0.92 }}
         onClick={() => setOpen((v) => !v)}
-        className="brand-mark fixed bottom-6 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-glow md:right-6"
-        aria-label="Open Aria assistant"
+        className="brand-mark fixed bottom-6 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-glow md:right-6"
+        aria-label="Open Nestura assistant"
       >
         <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-brand-500" />
         {open ? <X size={20} /> : <Sparkles size={22} />}

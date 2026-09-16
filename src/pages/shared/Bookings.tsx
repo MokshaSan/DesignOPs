@@ -12,9 +12,9 @@ const SLOTS = ["07:00–08:00", "08:00–09:00", "10:00–11:00", "16:00–17:00
 const DATES = ["16 Sep", "17 Sep", "18 Sep", "19 Sep", "20 Sep", "21 Sep"];
 
 export function ResidentBookings() {
-  const { bookings, addBooking, cancelBooking, residentTier, logActivity } = useStore();
+  const { bookings, addBooking, cancelBooking, residentTier, logActivity, accountUnitId } = useStore();
   const allowed = TIER_PERMISSIONS[residentTier].services;
-  const mine = bookings.filter((b) => b.unitId === CURRENT_UNIT.id);
+  const mine = bookings.filter((b) => b.unitId === accountUnitId || b.unitId === CURRENT_UNIT.id);
   const [facilityId, setFacilityId] = useState(FACILITIES[0].id);
   const [date, setDate] = useState(DATES[1]);
   const [slot, setSlot] = useState(SLOTS[1]);

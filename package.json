@@ -9,7 +9,8 @@
     "dev:api": "node server/index.js",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "seed:db": "node scripts/seed-db.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

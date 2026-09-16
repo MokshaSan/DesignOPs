@@ -19,7 +19,7 @@ export function Avatar({ name, size = "md", className }: AvatarProps) {
     <div
       className={cx(
         sizes[size],
-        "brand-mark flex items-center justify-center rounded-full font-semibold text-white",
+        "brand-mark flex items-center justify-center rounded-full bg-brand-600 font-semibold text-white",
         className,
       )}
     >

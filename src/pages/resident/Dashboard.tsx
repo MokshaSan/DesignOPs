@@ -1,15 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Thermometer, Lightbulb, Lock, Zap, ChevronRight, Sparkles, Info, Wrench, CreditCard, Megaphone, CalendarClock, MessageSquareWarning } from "lucide-react";
+import { Thermometer, Lightbulb, Lock, Zap, ChevronRight, Sparkles, Wrench, CreditCard, Megaphone, CalendarClock, MessageSquareWarning } from "lucide-react";
 import { StatTile } from "@/components/ui/StatTile";
-import { AIInsightCard } from "@/components/ai/AIInsightCard";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { DeviceTile } from "@/components/devices/DeviceTile";
 import { getIcon } from "@/lib/icons";
+import { SimulateAlertButton } from "@/components/alerts/SimulateAlertButton";
+import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
 import { useStore, useResidentDevices } from "@/store/useStore";
-import { CURRENT_UNIT } from "@/data/seed";
 import { Badge } from "@/components/ui/Badge";
 
 function greeting() {
@@ -20,31 +19,28 @@ function greeting() {
 }
 
 export function ResidentDashboard() {
-  const { scenes, automations, activityLog, visitors, acceptSuggestedAutomation, addNotification, runScene } = useStore();
+  const { scenes, activityLog, visitors, runScene, accountName, accountUnitId } = useStore();
   const devices = useResidentDevices();
-  const [showInsight, setShowInsight] = useState(true);
-  const [showWhy, setShowWhy] = useState(false);
 
   const lights = devices.filter((d) => d.kind === "light");
   const ac = devices.find((d) => d.kind === "ac" && d.room === "Living Room");
   const door = devices.find((d) => d.kind === "door");
   const lightsOn = lights.filter((l) => l.power).length;
   const livingRoomDevices = devices.filter((d) => ["Living Room"].includes(d.room)).slice(0, 4);
-  const pendingVisitor = visitors.find((v) => v.status === "pending");
-  const arrivalAutomation = automations.find((a) => a.id === "auto-arrival");
-  const arrivalScene = scenes.find((s) => s.id === "scene-arrival");
+  const pendingVisitor = visitors.find((v) => v.status === "pending" && v.unitId === accountUnitId);
 
   const energyToday = useMemo(() => 4.2, []);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-tertiary">
-          {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.label}
-        </p>
-        <h1 className="text-2xl font-bold text-primary md:text-3xl">
-          {greeting()}, {CURRENT_UNIT.residentName.split(" ")[0]}
-        </h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-medium text-tertiary">Tower A · Unit {accountUnitId === "12A" ? "W001" : accountUnitId}</p>
+          <h1 className="text-2xl font-bold text-primary md:text-3xl">
+            {greeting()}, {accountName.split(" ")[0]}
+          </h1>
+        </div>
+        <SimulateAlertButton />
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
@@ -76,55 +72,7 @@ export function ResidentDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          {showInsight && arrivalAutomation?.aiSuggested && arrivalScene && (
-            <AIInsightCard
-              title="AI Insight · Pattern detected"
-              actions={
-                <>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      acceptSuggestedAutomation(arrivalAutomation.id);
-                      addNotification({
-                        icon: "Sparkles",
-                        title: "Automation created",
-                        body: "Evening Arrival will now run automatically.",
-                        category: "ai",
-                      });
-                      setShowInsight(false);
-                    }}
-                  >
-                    Create automation
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowInsight(false)}>
-                    Not now
-                  </Button>
-                  <button
-                    onClick={() => setShowWhy((v) => !v)}
-                    className="ml-auto flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline dark:text-brand-400"
-                  >
-                    <Info size={12} /> Why am I seeing this?
-                  </button>
-                </>
-              }
-            >
-              <p>
-                I noticed a pattern — you usually arrive home between <strong>6:00–6:30 PM</strong> and turn on the
-                living room lights and AC within minutes. Want me to automate that as{" "}
-                <strong>"Evening Arrival"</strong>?
-              </p>
-              {showWhy && (
-                <motion.p
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="mt-2 rounded-lg bg-surface-raised p-3 text-xs text-tertiary"
-                >
-                  {arrivalScene.aiReasoning} This suggestion is generated from your last 14 days of device activity —
-                  nothing is changed automatically until you approve it.
-                </motion.p>
-              )}
-            </AIInsightCard>
-          )}
+          <LiveAISuggestion />
 
           <Card>
             <CardHeader>
@@ -207,10 +155,10 @@ export function ResidentDashboard() {
           <Card className="bg-gradient-to-br from-brand-700 to-brand-900 text-white dark:from-brand-300 dark:to-brand-200">
             <div className="flex items-center gap-2">
               <Sparkles size={16} />
-              <p className="text-sm font-semibold">Ask Aria</p>
+              <p className="text-sm font-semibold">Ask Nestura</p>
             </div>
             <p className="mt-2 text-xs text-white/80">
-              Need directions to the gym, pool, or parking? Tap the assistant button in the corner — Aria knows the
+              Need directions to the gym, pool, or parking? Tap the assistant button in the corner — Nestura knows the
               full building layout.
             </p>
           </Card>

@@ -5,6 +5,8 @@ import { useStore } from "@/store/useStore";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackButton } from "@/components/ui/BackButton";
 import { ROLE_LABEL } from "@/routes/navConfig";
+import { DEMO_ACCOUNTS } from "@/data/demoAccounts";
+import { supabase } from "@/lib/supabase";
 import type { Role } from "@/types";
 import { cx } from "@/lib/cx";
 
@@ -16,7 +18,7 @@ const ROLE_ROUTES: Record<Role, string> = {
 };
 
 export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?: string }) {
-  const { theme, toggleTheme, role, setRole, notifications } = useStore();
+  const { theme, toggleTheme, role, notifications, accountName, setAccount } = useStore();
   const [roleOpen, setRoleOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,10 +69,10 @@ export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?
             onClick={() => setRoleOpen((v) => !v)}
             className="flex items-center gap-2 rounded-lg border border-border py-1.5 pl-1.5 pr-2.5 text-sm hover:bg-surface-raised"
           >
-            <Avatar name={role === "resident" ? "Alex Perera" : role === "operator" ? "Ops Team" : "JK Developer"} size="sm" />
+            <Avatar name={accountName} size="sm" />
             <span className="hidden text-left leading-tight sm:block">
-              <span className="block text-xs font-semibold text-primary">{ROLE_LABEL[role]}</span>
-              <span className="block text-[10px] text-tertiary">Account</span>
+              <span className="block text-xs font-semibold text-primary">{accountName}</span>
+              <span className="block text-[10px] text-tertiary">{ROLE_LABEL[role]}</span>
             </span>
             <ChevronDown size={14} className="text-tertiary" />
           </button>
@@ -78,36 +80,37 @@ export function Topbar({ onMenuClick, title }: { onMenuClick: () => void; title?
           {roleOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setRoleOpen(false)} />
-              <div className="absolute right-0 top-12 z-20 w-56 overflow-hidden rounded-xl border border-border bg-surface shadow-2xl">
+              <div className="absolute right-0 top-12 z-20 max-h-[70vh] w-64 overflow-y-auto rounded-xl border border-border bg-surface shadow-2xl">
                 <p className="border-b border-border px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-tertiary">
-                  View as
+                  Switch demo account
                 </p>
-                {(["resident", "operator", "developer"] as Role[]).map((r) => (
+                {DEMO_ACCOUNTS.filter((a) => a.role !== "visitor").map((account) => (
                   <button
-                    key={r}
+                    key={account.key}
                     onClick={() => {
-                      setRole(r);
+                      setAccount(account);
                       setRoleOpen(false);
-                      navigate(ROLE_ROUTES[r]);
+                      navigate(account.to);
                     }}
                     className={cx(
-                      "flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-surface-raised",
-                      role === r ? "text-brand-700 dark:text-brand-500 font-semibold" : "text-secondary",
+                      "flex w-full flex-col px-3 py-2.5 text-left text-sm hover:bg-surface-raised",
+                      accountName === account.name ? "text-brand-700 dark:text-brand-500" : "text-secondary",
                     )}
                   >
-                    {ROLE_LABEL[r]}
-                    {role === r && <span className="h-1.5 w-1.5 rounded-full bg-brand-600" />}
+                    <span className="font-semibold text-primary">{account.name}</span>
+                    <span className="text-[11px] text-tertiary">{account.label}</span>
                   </button>
                 ))}
                 <div className="border-t border-border">
                   <button
                     onClick={() => {
                       setRoleOpen(false);
+                      void supabase?.auth.signOut();
                       navigate("/");
                     }}
                     className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-tertiary hover:bg-surface-raised hover:text-primary"
                   >
-                    <LogOut size={14} /> Back to landing
+                    <LogOut size={14} /> Log out
                   </button>
                 </div>
               </div>

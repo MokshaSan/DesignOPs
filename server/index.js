@@ -164,9 +164,24 @@ function fallbackScene(prompt, devices) {
  * rather than hallucinated.
  */
 app.post("/api/ai/assistant", async (req, res) => {
-  const { message, role = "resident" } = req.body || {};
+  const { message, role = "resident", unit, floorPlan } = req.body || {};
 
-  const system = `You are Aria, the AI concierge for ${"John Keells Smart Living"}. You help a ${role} with smart-home control questions, wayfinding around the building, amenities, bookings, and general building info. Use ONLY the building facts below — if asked about a location, give the floor and directions from the resident's apartment. Be warm, concise (2-4 sentences), and use plain text (no markdown headers). If asked to control a device, explain you can create a Scene for that in the Scene Builder rather than acting directly.\n\nBUILDING FACTS:\n${buildingContext()}`;
+  const livePlan = Array.isArray(floorPlan?.amenities)
+    ? floorPlan.amenities
+        .map((a) => `- ${a.name} — ${a.levelCode || a.level}. Hours: ${a.hours || "see lobby board"}.`)
+        .join("\n")
+    : "";
+  const liveUnits = Array.isArray(floorPlan?.units)
+    ? floorPlan.units
+        .slice(0, 24)
+        .map((u) => `${u.label}${u.occupied ? ` (${u.residentName})` : " vacant"}`)
+        .join(", ")
+    : "";
+  const facts = livePlan
+    ? `Property: The Meridian, Tower A.\nResident unit: ${unit || "12A"}.\n\nOperator floor plan amenities:\n${livePlan}\n\nSample units on the plan: ${liveUnits}`
+    : buildingContext();
+
+  const system = `You are Nestura, the AI concierge for Nestura Smart Living. You help a ${role} with smart-home questions, wayfinding, amenities, bookings, and building info. Use ONLY the building facts below — if asked about a location, give the floor and directions from unit ${unit || "12A"}. Be warm, concise (2-4 sentences), and use plain text. If asked to control a device, explain they can create a Scene in Scene Builder.\n\nBUILDING FACTS:\n${facts}`;
 
   const raw = await callOpenAI({ system, user: message, json: false });
   if (raw) return res.json({ reply: raw.trim(), source: "ai" });
@@ -255,6 +270,42 @@ app.post("/api/ai/automation-suggest", async (req, res) => {
     trigger: "Resident arrives home between 18:00–19:00",
     reasoning: "You've manually turned on the living room lights and AC within minutes of arriving home on 4 of the last 5 weekdays.",
     confidence: 91,
+    source: "fallback",
+  });
+});
+
+app.post("/api/ai/suggest", async (req, res) => {
+  const { role = "resident", activityLog = [], devices = [], visitors = [], alerts = [] } = req.body || {};
+  const system = `You are Nestura. Give ONE timely suggestion for a ${role} based on live building activity. Respond JSON only: {"suggestion": string}. Keep it under 45 words. Be specific to the data.`;
+  const user = `Activity: ${JSON.stringify(activityLog.slice(0, 8))}\nDevices: ${JSON.stringify(devices.slice(0, 8))}\nVisitors: ${JSON.stringify(visitors.slice(0, 6))}\nOpen alerts: ${JSON.stringify(alerts.slice(0, 4))}`;
+  const raw = await callOpenAI({ system, user, json: true });
+  const parsed = safeJsonParse(raw);
+  if (parsed?.suggestion) return res.json({ suggestion: parsed.suggestion, source: "ai" });
+
+  if (alerts.length) {
+    return res.json({
+      suggestion: `There's an open ${alerts[0].severity} alert (${alerts[0].title}). Acknowledge it after you verify the space.`,
+      source: "fallback",
+    });
+  }
+  const pending = visitors.filter((v) => v.status === "pending");
+  if (pending.length) {
+    return res.json({
+      suggestion: `${pending[0].name} is waiting on visitor access for unit ${pending[0].unitId}. Grant a timed window if you expect them.`,
+      source: "fallback",
+    });
+  }
+  const weak = devices.find((d) => (d.battery ?? 100) < 25 || d.status === "warning");
+  if (weak) {
+    return res.json({
+      suggestion: `${weak.name} needs attention (${weak.status}${weak.battery != null ? `, battery ${weak.battery}%` : ""}). Schedule a check before it fails.`,
+      source: "fallback",
+    });
+  }
+  res.json({
+    suggestion: activityLog[0]
+      ? `Latest activity: ${activityLog[0].text}. I can turn that into an automation if this happens most evenings.`
+      : "No unusual activity right now. Ask me for directions or to draft a scene.",
     source: "fallback",
   });
 });

@@ -1,4 +1,6 @@
 import { AlertTriangle, AlertOctagon, Info, Sparkles, Check } from "lucide-react";
+import { SimulateAlertButton } from "@/components/alerts/SimulateAlertButton";
+import { BroadcastFireButton } from "@/components/alerts/BroadcastFireButton";
 import { useStore } from "@/store/useStore";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -16,12 +18,21 @@ export function OperatorAlerts() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Active Alerts</h1>
-        <p className="mt-1 text-sm text-tertiary">Building-wide anomalies, ranked by severity with AI-assisted triage.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Active Alerts</h1>
+          <p className="mt-1 text-sm text-tertiary">Live building events. Simulate a sensor event to warn the resident and operations together.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <SimulateAlertButton />
+          <BroadcastFireButton />
+        </div>
       </div>
 
       <div className="space-y-3">
+        {alerts.length === 0 && (
+          <Card className="text-center text-sm text-tertiary">No live alerts. Use Simulate alert to fire a sensor event.</Card>
+        )}
         {alerts.map((a) => {
           const cfg = SEVERITY_CONFIG[a.severity];
           const Icon = cfg.icon;

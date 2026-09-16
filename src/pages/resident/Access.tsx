@@ -8,19 +8,15 @@ import { AccessPassCard } from "@/components/visitors/AccessPassCard";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
 import { useStore, useResidentDevices } from "@/store/useStore";
 import type { VisitorRequest, VisitorType } from "@/types";
-import { CURRENT_UNIT } from "@/data/seed";
 import { TIER_PERMISSIONS } from "@/data/permissions";
 import { RestrictedNotice } from "@/components/ui/RestrictedNotice";
 
 function uid() {
-  return `pass-${Math.random().toString(36).slice(2, 8)}`;
-}
-function passCode() {
-  return `JK-${Math.floor(1000 + Math.random() * 9000)}`;
+  return `NV-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
 export function ResidentAccess() {
-  const { toggleDevicePower, addVisitorRequest, addNotification, residentTier } = useStore();
+  const { toggleDevicePower, addVisitorRequest, addNotification, residentTier, accountUnitId, accountName } = useStore();
   const devices = useResidentDevices();
   const canGrantAccess = TIER_PERMISSIONS[residentTier].access;
   const door = devices.find((d) => d.kind === "door");
@@ -35,13 +31,14 @@ export function ResidentAccess() {
 
   function generatePass() {
     if (!name.trim()) return;
+    const id = uid();
     const pass: VisitorRequest = {
-      id: uid(),
+      id,
       name,
       type,
-      unitId: CURRENT_UNIT.id,
-      hostName: CURRENT_UNIT.residentName,
-      destination: `${CURRENT_UNIT.tower} · Unit ${CURRENT_UNIT.id}`,
+      unitId: accountUnitId || "12A",
+      hostName: accountName,
+      destination: `Tower A · Unit ${accountUnitId || "12A"}`,
       purpose: type,
       requestedFor: new Date().toISOString().slice(0, 10),
       windowStart: start,
@@ -49,8 +46,10 @@ export function ResidentAccess() {
       riskLevel: "low",
       riskReason: "Issued directly by resident",
       status: "approved",
-      passCode: passCode(),
+      passCode: id,
       createdAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      accessEnabled: true,
+      doorUnlocked: false,
     };
     addVisitorRequest(pass);
     addNotification({ icon: "ShieldCheck", title: "Access pass created", body: `${name} can enter ${start}–${end} today.`, category: "visitor" });
@@ -165,6 +164,18 @@ export function ResidentAccess() {
         {createdPass && (
           <div className="flex flex-col items-center gap-4">
             <AccessPassCard visitor={createdPass} />
+            <div className="w-full rounded-xl border border-border bg-bg p-3 text-center">
+              <p className="text-[11px] uppercase tracking-widest text-tertiary">Send this ID to the visitor</p>
+              <p className="mt-1 font-mono text-xl tracking-[0.18em] text-primary">{createdPass.passCode}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-2"
+                onClick={() => void navigator.clipboard.writeText(createdPass.passCode)}
+              >
+                Copy visitor ID
+              </Button>
+            </div>
             <PassQRCode value={`${window.location.origin}/visitor/pass/${createdPass.id}`} />
             <Badge tone="success">
               Valid {createdPass.windowStart}–{createdPass.windowEnd} today

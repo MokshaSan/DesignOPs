@@ -13,6 +13,7 @@ export function ResidentEnergy() {
   const { run, loading } = useAIEnergyInsight();
   const [insight, setInsight] = useState<{ insight: string; recommendation: string; contributorPct: number; source: string } | null>(null);
   const [applied, setApplied] = useState(false);
+  const [editing, setEditing] = useState(false);
   const { setDeviceValue, addNotification } = useStore();
   const devices = useResidentDevices();
 
@@ -61,13 +62,31 @@ export function ResidentEnergy() {
         <AIInsightCard
           title="AI Energy Insight"
           actions={
-            <Button size="sm" onClick={applyEnergySaver} disabled={applied}>
-              {applied ? "Applied ✓" : "Apply Energy Saver"}
-            </Button>
+            <>
+              <Button size="sm" onClick={applyEnergySaver} disabled={applied}>
+                {applied ? "Applied ✓" : "Apply Energy Saver"}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setEditing((v) => !v)}>
+                {editing ? "Done" : "Edit"}
+              </Button>
+            </>
           }
         >
-          <p>{insight.insight}</p>
-          <p className="mt-1.5 text-secondary">{insight.recommendation}</p>
+          {editing ? (
+            <textarea
+              value={`${insight.insight}\n${insight.recommendation}`}
+              onChange={(e) => {
+                const [first, ...rest] = e.target.value.split("\n");
+                setInsight({ ...insight, insight: first, recommendation: rest.join("\n") });
+              }}
+              className="mt-1 min-h-[88px] w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm"
+            />
+          ) : (
+            <>
+              <p>{insight.insight}</p>
+              <p className="mt-1.5 text-secondary">{insight.recommendation}</p>
+            </>
+          )}
         </AIInsightCard>
       )}
 

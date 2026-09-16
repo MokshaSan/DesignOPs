@@ -11,7 +11,7 @@ interface StatTileProps {
 }
 
 const iconTones = {
-  brand: "bg-brand-100 text-brand-700 dark:text-brand-900",
+  brand: "bg-[#7c3aed] text-white",
   success: "bg-success/10 text-success",
   warning: "bg-warning/10 text-warning",
   danger: "bg-danger/10 text-danger",

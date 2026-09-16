@@ -80,6 +80,12 @@ body,
   height: 100%;
 }
 
+.brand-mark {
+  background-color: #7c3aed;
+  background-image: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: #fff;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -174,7 +180,11 @@ body {
   }
 }
 
-.receipt-print {
-  background: #fff;
-  color: #181526;
+.alert-flash {
+  background: radial-gradient(circle at center, rgba(220, 38, 38, 0.92), rgba(127, 29, 29, 0.96));
+  animation: nestura-alert-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes nestura-alert-pulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.18); }
 }

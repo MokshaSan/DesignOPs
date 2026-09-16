@@ -73,7 +73,7 @@ export interface Automation {
 
 export type VisitorType = "guest" | "delivery" | "contractor" | "service";
 
-export type VisitorStatus = "pending" | "approved" | "rejected" | "checked-in" | "expired";
+export type VisitorStatus = "pending" | "approved" | "rejected" | "checked-in" | "expired" | "revoked";
 
 export interface VisitorRequest {
   id: string;
@@ -91,6 +91,8 @@ export interface VisitorRequest {
   status: VisitorStatus;
   passCode: string;
   createdAt: string;
+  accessEnabled?: boolean;
+  doorUnlocked?: boolean;
 }
 
 export interface AppNotification {
@@ -122,6 +124,9 @@ export interface AlertItem {
   title: string;
   location: string;
   time: string;
+  unitId?: string;
+  kind?: "smoke" | "heat" | "leak" | "motion" | "power" | "fire" | "other";
+  broadcast?: boolean;
   aiConfidence?: number;
   aiNote?: string;
   acknowledged: boolean;
@@ -163,6 +168,7 @@ export interface ServiceRequest {
   scheduledFor: string;
   notes?: string;
   status: ServiceRequestStatus;
+  statusHistory?: { status: ServiceRequestStatus; at: string }[];
 }
 
 export interface ChatMessage {

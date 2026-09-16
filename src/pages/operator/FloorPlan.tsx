@@ -397,7 +397,7 @@ export function OperatorFloorPlan() {
                         onClick={() => openEditAmenity(a)}
                         className="group flex items-center gap-3 rounded-xl border border-border bg-surface-raised p-3 text-left transition-colors hover:border-brand-300"
                       >
-                        <div className="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white">
+                        <div className="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white">
                           <Icon size={16} />
                         </div>
                         <div className="min-w-0 flex-1">

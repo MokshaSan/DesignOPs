@@ -7,15 +7,14 @@ import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
-import { CURRENT_UNIT } from "@/data/seed";
 import { TIER_PERMISSIONS } from "@/data/permissions";
 import { RestrictedNotice } from "@/components/ui/RestrictedNotice";
 import type { VisitorRequest } from "@/types";
 
 export function ResidentVisitors() {
-  const { visitors, approveVisitor, rejectVisitor, addNotification, residentTier } = useStore();
+  const { visitors, approveVisitor, rejectVisitor, addNotification, residentTier, accountUnitId, setVisitorAccess } = useStore();
   const canManage = TIER_PERMISSIONS[residentTier].access;
-  const mine = visitors.filter((v) => v.unitId === CURRENT_UNIT.id);
+  const mine = visitors.filter((v) => v.unitId === accountUnitId || v.unitId === "12A");
   const [showPassFor, setShowPassFor] = useState<VisitorRequest | null>(null);
   const [grantFor, setGrantFor] = useState<VisitorRequest | null>(null);
   const [grantDate, setGrantDate] = useState("");
@@ -63,7 +62,7 @@ export function ResidentVisitors() {
       <div>
         <h1 className="text-2xl font-bold text-primary">Visitors</h1>
         <p className="mt-1 text-sm text-tertiary">
-          Grant timed access for Unit {CURRENT_UNIT.id} — from this time to this time.
+          Grant timed access for Unit {accountUnitId} — from this time to this time.
         </p>
       </div>
 
@@ -98,7 +97,13 @@ export function ResidentVisitors() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((v) => (
-              <button key={v.id} onClick={() => v.status === "approved" && setShowPassFor(v)} className="text-left">
+              <button
+                key={v.id}
+                onClick={() =>
+                  (v.status === "approved" || v.status === "revoked" || v.status === "checked-in") && setShowPassFor(v)
+                }
+                className="text-left"
+              >
                 <VisitorRequestCard visitor={v} />
               </button>
             ))}
@@ -152,10 +157,37 @@ export function ResidentVisitors() {
         {showPassFor && (
           <div className="flex flex-col items-center gap-4">
             <AccessPassCard visitor={showPassFor} />
+            <p className="font-mono text-sm tracking-[0.18em] text-primary">{showPassFor.passCode}</p>
+            <p className="text-center text-xs text-tertiary">Send this ID to the visitor. They open it on Request a Visit → I already have an ID.</p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void navigator.clipboard.writeText(showPassFor.passCode)}
+            >
+              Copy visitor ID
+            </Button>
             <PassQRCode value={`${window.location.origin}/visitor/pass/${showPassFor.id}`} />
-            <Badge tone="success">
-              Valid {showPassFor.windowStart}–{showPassFor.windowEnd}
+            <Badge tone={showPassFor.status === "revoked" || showPassFor.accessEnabled === false ? "danger" : "success"}>
+              {showPassFor.status === "revoked" || showPassFor.accessEnabled === false
+                ? "Deactivated"
+                : `Valid ${showPassFor.windowStart}–${showPassFor.windowEnd}`}
             </Badge>
+            {(showPassFor.status === "approved" || showPassFor.status === "revoked" || showPassFor.status === "checked-in") && (
+              <Button
+                variant={showPassFor.accessEnabled === false || showPassFor.status === "revoked" ? "primary" : "danger"}
+                onClick={() => {
+                  const on = !(showPassFor.accessEnabled === false || showPassFor.status === "revoked");
+                  setVisitorAccess(showPassFor.id, !on);
+                  setShowPassFor({
+                    ...showPassFor,
+                    accessEnabled: !on,
+                    status: !on ? "approved" : "revoked",
+                  });
+                }}
+              >
+                {showPassFor.accessEnabled === false || showPassFor.status === "revoked" ? "Reactivate access" : "Deactivate access"}
+              </Button>
+            )}
           </div>
         )}
       </Modal>

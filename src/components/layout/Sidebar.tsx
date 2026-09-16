@@ -10,6 +10,7 @@ import { NesturaLockup } from "@/components/brand/NesturaMark";
 export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
   const items = NAV_CONFIG[role];
   const residentTier = useStore((s) => s.residentTier);
+  const accountUnitId = useStore((s) => s.accountUnitId);
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
@@ -48,7 +49,9 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
       <div className="border-t border-border p-4">
         <div className="rounded-xl bg-surface-raised p-3">
           <p className="text-xs font-semibold text-primary">The Meridian, Tower A</p>
-          <p className="mt-0.5 text-[11px] text-tertiary">Unit 12A · {role === "resident" ? TIER_LABEL[residentTier] : "—"}</p>
+          <p className="mt-0.5 text-[11px] text-tertiary">
+            {role === "resident" ? `Unit ${accountUnitId}` : "Operations"} · {role === "resident" ? TIER_LABEL[residentTier] : "—"}
+          </p>
         </div>
       </div>
     </aside>

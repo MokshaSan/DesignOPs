@@ -3,7 +3,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { useStore } from "@/store/useStore";
-import { CURRENT_UNIT } from "@/data/seed";
 import { TIER_DESCRIPTION, TIER_LABEL, TIER_PERMISSIONS } from "@/data/permissions";
 import type { ResidentTier } from "@/types";
 import { cx } from "@/lib/cx";
@@ -17,7 +16,7 @@ const PERMISSION_LABELS: { key: keyof typeof TIER_PERMISSIONS.owner; label: stri
 ];
 
 export function ResidentProfile() {
-  const { residentTier, setResidentTier } = useStore();
+  const { residentTier, setResidentTier, accountName, accountUnitId } = useStore();
   const permissions = TIER_PERMISSIONS[residentTier];
 
   return (
@@ -28,12 +27,10 @@ export function ResidentProfile() {
       </div>
 
       <Card className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-        <Avatar name={CURRENT_UNIT.residentName} size="lg" />
+        <Avatar name={accountName} size="lg" />
         <div>
-          <p className="text-lg font-semibold text-primary">{CURRENT_UNIT.residentName}</p>
-          <p className="text-sm text-tertiary">
-            {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.label}
-          </p>
+          <p className="text-lg font-semibold text-primary">{accountName}</p>
+          <p className="text-sm text-tertiary">Tower A · Unit {accountUnitId === "12A" ? "W001" : accountUnitId}</p>
           <Badge tone="brand" className="mt-2">
             {TIER_LABEL[residentTier]}
           </Badge>

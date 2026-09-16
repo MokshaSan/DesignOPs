@@ -2,13 +2,16 @@ import { Building2, Users, Wrench, Zap, CheckCircle2, AlertTriangle, XCircle } f
 import { StatTile } from "@/components/ui/StatTile";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { SimulateAlertButton } from "@/components/alerts/SimulateAlertButton";
+import { BroadcastFireButton } from "@/components/alerts/BroadcastFireButton";
+import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
 import { useStore } from "@/store/useStore";
 import { EnergyChart } from "@/components/charts/EnergyChart";
 import { ENERGY_WEEK } from "@/data/seed";
 import { Link } from "react-router-dom";
 
 export function OperatorDashboard() {
-  const { devices, visitors, maintenance, alerts, tickets } = useStore();
+  const { devices, visitors, maintenance, alerts, tickets, floorUnits } = useStore();
   const online = devices.filter((d) => d.status === "online").length;
   const warning = devices.filter((d) => d.status === "warning").length;
   const offline = devices.filter((d) => d.status === "offline").length;
@@ -18,10 +21,18 @@ export function OperatorDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">Building Overview</h1>
-        <p className="mt-1 text-sm text-tertiary">The Meridian, Tower A · John Keells Properties</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Building Overview</h1>
+          <p className="mt-1 text-sm text-tertiary">The Meridian, Tower A · live from Nestura records</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <SimulateAlertButton />
+          <BroadcastFireButton />
+        </div>
       </div>
+
+      <LiveAISuggestion />
 
       {criticalAlerts.length > 0 && (
         <Card className="flex items-center gap-3 border-danger/40 bg-danger/5">
@@ -36,10 +47,10 @@ export function OperatorDashboard() {
       )}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatTile label="Total Units" value="420" icon={Building2} tone="brand" />
+        <StatTile label="Total Units" value={String(floorUnits.length)} icon={Building2} tone="brand" />
         <StatTile label="Active Visitors" value={String(activeVisitors)} icon={Users} tone="success" />
         <StatTile label="Open work" value={String(openMaintenance)} icon={Wrench} tone="warning" />
-        <StatTile label="Energy Today" value="2,481 kWh" icon={Zap} tone="brand" trend={{ value: "↓ 5% vs yesterday", positive: true }} />
+        <StatTile label="Energy Today" value={`${ENERGY_WEEK.reduce((s, p) => s + p.kwh, 0).toFixed(0)} kWh`} icon={Zap} tone="brand" trend={{ value: "vs last week", positive: true }} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

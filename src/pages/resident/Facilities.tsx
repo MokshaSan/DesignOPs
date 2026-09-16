@@ -54,7 +54,7 @@ export function ResidentFacilities() {
               onClick={() => setActive(a)}
             >
               <div className="flex items-start justify-between">
-                <div className="brand-mark flex h-11 w-11 items-center justify-center rounded-xl text-white">
+                <div className="brand-mark flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
                   <Icon size={20} />
                 </div>
                 <Badge tone={bookable ? "warning" : "success"}>{bookable ? "Booking required" : "Open access"}</Badge>
@@ -74,7 +74,7 @@ export function ResidentFacilities() {
       {active && (
         <Card className="border-brand-200 dark:border-brand-800/60">
           <div className="flex items-start gap-4">
-            <div className="brand-mark flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white">
+            <div className="brand-mark flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white">
               {(() => {
                 const Icon = AMENITY_ICON[active.id] ?? MapPin;
                 return <Icon size={22} />;

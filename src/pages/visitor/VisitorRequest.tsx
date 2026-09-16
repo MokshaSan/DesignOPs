@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, IdCard, Search } from "lucide-react";
 import { persistVisitorRequest } from "@/lib/visitors";
 import { useStore } from "@/store/useStore";
 import { BackButton } from "@/components/ui/BackButton";
@@ -15,18 +15,16 @@ const PURPOSES: { id: VisitorType; label: string; hint: string }[] = [
   { id: "contractor", label: "Contractor", hint: "Works & repairs" },
 ];
 
-const STEPS = ["Requested", "Resident approval", "Building approval", "Access pass"];
-
 function uid() {
-  return `visitor-${Math.random().toString(36).slice(2, 9)}`;
-}
-function passCode() {
   return `NV-${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
 export function VisitorRequest() {
   const navigate = useNavigate();
-  const { addVisitorRequest, addNotification } = useStore();
+  const { addVisitorRequest, addNotification, visitors } = useStore();
+  const [mode, setMode] = useState<"new" | "id">("new");
+  const [lookup, setLookup] = useState("");
+  const [lookupError, setLookupError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [unit, setUnit] = useState("W001");
@@ -35,13 +33,29 @@ export function VisitorRequest() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [start, setStart] = useState("18:00");
   const [end, setEnd] = useState("20:00");
-  const [submittedId, setSubmittedId] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState<VisitorRequest | null>(null);
+
+  function findById(value: string) {
+    const q = value.trim().toLowerCase();
+    return visitors.find((v) => v.id.toLowerCase() === q || v.passCode.toLowerCase() === q);
+  }
+
+  function openExisting(e: FormEvent) {
+    e.preventDefault();
+    setLookupError(null);
+    const found = findById(lookup);
+    if (!found) {
+      setLookupError("No pass with that ID. Check the code the resident sent you.");
+      return;
+    }
+    navigate(`/visitor/pass/${found.id}`);
+  }
 
   function submit(e: FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
     const id = uid();
-    const request = {
+    const request: VisitorRequest = {
       id,
       name: name.trim(),
       type: purpose,
@@ -52,25 +66,30 @@ export function VisitorRequest() {
       requestedFor: date,
       windowStart: start,
       windowEnd: end,
-      riskLevel: (purpose === "contractor" ? "medium" : "low") as VisitorRequest["riskLevel"],
+      riskLevel: purpose === "contractor" ? "medium" : "low",
       riskReason:
         purpose === "contractor"
           ? "First-time contractor · longer access window — operator review required"
           : "Resident-hosted visit · short access window",
-      status: "pending" as const,
-      passCode: passCode(),
+      status: "pending",
+      passCode: id,
       createdAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      accessEnabled: false,
+      doorUnlocked: false,
     };
     addVisitorRequest(request);
     void persistVisitorRequest(request, contact.trim());
     addNotification({
       icon: "Users",
       title: "Visitor request received",
-      body: `${name.trim()} asked to visit ${unit} ${start}–${end}.`,
+      body: `${name.trim()} · ID ${id} asked to visit ${unit} ${start}–${end}.`,
       category: "visitor",
     });
-    setSubmittedId(id);
+    setSubmitted(request);
   }
+
+  const inputClass =
+    "mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-violet-400";
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
@@ -80,129 +99,142 @@ export function VisitorRequest() {
           <NesturaLockup height={36} onDark />
         </header>
 
-        {!submittedId ? (
-          <motion.form
-            onSubmit={submit}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-10 flex flex-1 flex-col"
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">Access request</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">Who are you visiting?</h1>
-            <p className="mt-2 text-sm leading-relaxed text-white/65">
-              A digital concierge for The Meridian. Your request goes to the resident first, then Building Operations.
-            </p>
-
-            <label className="mt-8 text-xs font-medium text-white/70">Your name</label>
-            <input
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Sarah Perera"
-              className="mt-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-3 text-sm outline-none placeholder:text-white/35 focus:border-violet-400"
-            />
-
-            <label className="mt-4 text-xs font-medium text-white/70">Phone or email</label>
-            <input
-              required
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              placeholder="sarah@email.com"
-              className="mt-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-3 text-sm outline-none placeholder:text-white/35 focus:border-violet-400"
-            />
-
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-medium text-white/70">Unit</label>
-                <select
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-3 text-sm outline-none focus:border-violet-400"
-                >
-                  <option className="text-neutral-900" value="W001">W001</option>
-                  <option className="text-neutral-900" value="W002">W002</option>
-                  <option className="text-neutral-900" value="W003">W003</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-white/70">Resident</label>
-                <input
-                  required
-                  value={resident}
-                  onChange={(e) => setResident(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-3 text-sm outline-none focus:border-violet-400"
-                />
-              </div>
-            </div>
-
-            <p className="mt-5 text-xs font-medium text-white/70">Purpose</p>
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              {PURPOSES.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setPurpose(p.id)}
-                  className={`rounded-xl border px-2 py-3 text-center transition-colors ${
-                    purpose === p.id ? "border-violet-400 bg-violet-400/15" : "border-white/15 bg-white/5"
-                  }`}
-                >
-                  <span className="block text-sm font-semibold">{p.label}</span>
-                  <span className="mt-0.5 block text-[10px] text-white/55">{p.hint}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="col-span-3 sm:col-span-1">
-                <label className="text-xs font-medium text-white/70">Date</label>
-                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm outline-none" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-white/70">Start</label>
-                <input type="time" value={start} onChange={(e) => setStart(e.target.value)} className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm outline-none" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-white/70">End</label>
-                <input type="time" value={end} onChange={(e) => setEnd(e.target.value)} className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm outline-none" />
-              </div>
-            </div>
-
-            <Button type="submit" className="mt-8 w-full rounded-full py-3.5">
-              Request Access
-            </Button>
-          </motion.form>
-        ) : (
+        {submitted ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">Request received</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">We have your visit.</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">Your Nestura ID</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight">Save this code.</h1>
             <p className="mt-2 text-sm text-white/65">
-              {name} · {unit} · {start}–{end}. The resident will review this next.
+              Come back anytime, tap “I already have an ID”, and enter this to open your card after the resident approves.
             </p>
-            <ol className="mt-10 space-y-0">
-              {STEPS.map((step, i) => (
-                <li key={step} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${i === 0 ? "bg-violet-400 text-neutral-950" : "border border-white/20 text-white/50"}`}>
-                      {i === 0 ? <Check size={14} /> : i + 1}
-                    </span>
-                    {i < STEPS.length - 1 && <span className="my-1 w-px flex-1 bg-white/15" style={{ minHeight: 28 }} />}
-                  </div>
-                  <div className="pb-6">
-                    <p className={`text-sm font-semibold ${i === 0 ? "text-white" : "text-white/45"}`}>{step}</p>
-                    {i === 0 && <p className="mt-0.5 text-xs text-white/50">Waiting on resident approval</p>}
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="mt-4 flex flex-col gap-2">
-              <Button className="rounded-full" onClick={() => navigate(`/visitor/pass/${submittedId}`)}>
-                View request status
+            <div className="mt-8 rounded-2xl border border-violet-400/40 bg-violet-400/10 p-5 text-center">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">Visitor ID</p>
+              <p className="mt-2 font-mono text-3xl font-semibold tracking-[0.18em]">{submitted.passCode}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-4 border-white/20 text-white"
+                onClick={() => void navigator.clipboard.writeText(submitted.passCode)}
+              >
+                Copy ID
               </Button>
-              <Button variant="ghost" className="rounded-full text-white" onClick={() => navigate("/login?role=resident")}>
-                Continue as resident to approve
+            </div>
+            <ol className="mt-8 space-y-2 text-sm text-white/70">
+              <li className="flex items-center gap-2">
+                <Check size={14} className="text-violet-300" /> Requested · waiting on {submitted.hostName}
+              </li>
+              <li>Resident grants a time window</li>
+              <li>Your digital card unlocks the door until that window ends</li>
+            </ol>
+            <div className="mt-8 flex flex-col gap-2">
+              <Button className="rounded-full" onClick={() => navigate(`/visitor/pass/${submitted.id}`)}>
+                Open pass
+              </Button>
+              <Button variant="ghost" className="rounded-full text-white" onClick={() => setSubmitted(null)}>
+                Make another request
               </Button>
             </div>
           </motion.div>
+        ) : (
+          <>
+            <div className="mt-8 grid grid-cols-2 gap-2 rounded-full bg-white/5 p-1">
+              <button
+                type="button"
+                onClick={() => setMode("new")}
+                className={`rounded-full py-2 text-sm font-semibold ${mode === "new" ? "bg-violet-500 text-white" : "text-white/60"}`}
+              >
+                New request
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("id")}
+                className={`rounded-full py-2 text-sm font-semibold ${mode === "id" ? "bg-violet-500 text-white" : "text-white/60"}`}
+              >
+                I already have an ID
+              </button>
+            </div>
+
+            {mode === "id" ? (
+              <motion.form onSubmit={openExisting} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-10">
+                <IdCard className="text-violet-300" size={28} />
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight">Enter your visitor ID</h1>
+                <p className="mt-2 text-sm text-white/65">Use the code from your request or the one a resident sent you.</p>
+                <input
+                  required
+                  value={lookup}
+                  onChange={(e) => setLookup(e.target.value)}
+                  placeholder="NV-482193"
+                  className={`${inputClass} mt-6 font-mono tracking-widest uppercase`}
+                />
+                {lookupError && <p className="mt-2 text-sm text-rose-300">{lookupError}</p>}
+                <Button type="submit" className="mt-6 w-full rounded-full py-3.5">
+                  <Search size={15} /> Open my card
+                </Button>
+              </motion.form>
+            ) : (
+              <motion.form onSubmit={submit} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-10 flex flex-1 flex-col">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">Access request</p>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight">Who are you visiting?</h1>
+                <p className="mt-2 text-sm leading-relaxed text-white/65">You’ll get a visitor ID immediately. The resident then unlocks your digital card.</p>
+
+                <label className="mt-8 text-xs font-medium text-white/70">Your name</label>
+                <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Sarah Perera" className={inputClass} />
+
+                <label className="mt-4 text-xs font-medium text-white/70">Phone or email</label>
+                <input required value={contact} onChange={(e) => setContact(e.target.value)} placeholder="sarah@email.com" className={inputClass} />
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-white/70">Unit</label>
+                    <select value={unit} onChange={(e) => setUnit(e.target.value)} className={inputClass}>
+                      <option className="text-neutral-900" value="W001">W001</option>
+                      <option className="text-neutral-900" value="W002">W002</option>
+                      <option className="text-neutral-900" value="W003">W003</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-white/70">Resident</label>
+                    <input required value={resident} onChange={(e) => setResident(e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+
+                <p className="mt-5 text-xs font-medium text-white/70">Purpose</p>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {PURPOSES.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setPurpose(p.id)}
+                      className={`rounded-xl border px-2 py-3 text-center ${
+                        purpose === p.id ? "border-violet-400 bg-violet-400/15" : "border-white/15 bg-white/5"
+                      }`}
+                    >
+                      <span className="block text-sm font-semibold">{p.label}</span>
+                      <span className="mt-0.5 block text-[10px] text-white/55">{p.hint}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  <div className="col-span-3 sm:col-span-1">
+                    <label className="text-xs font-medium text-white/70">Date</label>
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-white/70">Start</label>
+                    <input type="time" value={start} onChange={(e) => setStart(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-white/70">End</label>
+                    <input type="time" value={end} onChange={(e) => setEnd(e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+
+                <Button type="submit" className="mt-8 w-full rounded-full py-3.5">
+                  Request Access
+                </Button>
+              </motion.form>
+            )}
+          </>
         )}
       </div>
     </div>

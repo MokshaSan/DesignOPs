@@ -22,7 +22,7 @@ function resolveAccount(email: string, hint: string | null): DemoAccount | undef
 export function Login() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const { setRole, setResidentTier } = useStore();
+  const { setAccount } = useStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,8 +30,7 @@ export function Login() {
   const hint = params.get("role");
 
   function enter(account: DemoAccount) {
-    setRole(account.role);
-    if (account.tier) setResidentTier(account.tier);
+    setAccount(account);
     navigate(account.to);
   }
 
@@ -58,7 +57,16 @@ export function Login() {
           account;
         if (found) enter(found);
         else {
-          setRole(role);
+          setAccount({
+            key: "custom",
+            name: (meta.name as string) || email,
+            email,
+            role,
+            unitId: "12A",
+            to: role === "operator" ? "/operator" : role === "developer" ? "/developer" : role === "visitor" ? "/visitor/request" : "/resident",
+            label: role,
+            detail: "",
+          });
           navigate(role === "operator" ? "/operator" : role === "developer" ? "/developer" : role === "visitor" ? "/visitor/request" : "/resident");
         }
         setLoading(false);
