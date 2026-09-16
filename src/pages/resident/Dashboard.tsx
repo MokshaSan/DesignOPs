@@ -184,7 +184,7 @@ export function ResidentDashboard() {
             </ul>
           </Card>
 
-          <Card className="bg-gradient-to-br from-brand-700 to-brand-900 text-white">
+          <Card className="bg-gradient-to-br from-brand-700 to-brand-900 text-white dark:from-brand-300 dark:to-brand-200">
             <div className="flex items-center gap-2">
               <Sparkles size={16} />
               <p className="text-sm font-semibold">Ask Aria</p>

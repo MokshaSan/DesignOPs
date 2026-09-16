@@ -28,7 +28,7 @@ export function DeviceTile({ device }: { device: Device }) {
           <div
             className={cx(
               "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
-              device.power ? "bg-brand-600 text-white" : "bg-surface-raised text-tertiary",
+              device.power ? "bg-brand-600 text-white dark:bg-brand-300" : "bg-surface-raised text-tertiary",
             )}
           >
             <Icon size={16} />

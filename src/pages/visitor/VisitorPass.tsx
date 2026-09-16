@@ -72,7 +72,7 @@ export function VisitorPass() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 text-center shadow-2xl"
       >
-        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white">
+        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white dark:from-brand-300 dark:to-brand-200">
           <Building2 size={20} />
         </div>
         <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-tertiary">John Keells Smart Living</p>

@@ -14,7 +14,7 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
       <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow dark:from-brand-300 dark:to-brand-200">
           <Building2 size={18} />
         </div>
         <div className="leading-tight">
@@ -39,7 +39,7 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
                 cx(
                   "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-brand-600 text-white shadow-sm shadow-brand-600/30"
+                    ? "bg-brand-600 text-white shadow-sm shadow-brand-600/30 dark:bg-brand-300"
                     : "text-secondary hover:bg-surface-raised hover:text-primary",
                 )
               }

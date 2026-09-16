@@ -45,7 +45,7 @@ export function AppShell({
             >
               <div className="flex h-16 items-center justify-between border-b border-border px-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white dark:from-brand-300 dark:to-brand-200">
                     <Building2 size={18} />
                   </div>
                   <p className="text-sm font-bold text-primary">Smart Living</p>
@@ -66,7 +66,7 @@ export function AppShell({
                       className={({ isActive }) =>
                         cx(
                           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
-                          isActive ? "bg-brand-600 text-white" : "text-secondary hover:bg-surface-raised",
+                          isActive ? "bg-brand-600 text-white dark:bg-brand-300" : "text-secondary hover:bg-surface-raised",
                         )
                       }
                     >
