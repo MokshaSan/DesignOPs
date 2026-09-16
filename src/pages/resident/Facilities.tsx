@@ -40,7 +40,7 @@ export function ResidentFacilities() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Facilities</h1>
-        <p className="mt-1 text-sm text-tertiary">Amenities at The Meridian, Tower A — with directions from your apartment.</p>
+        <p className="mt-1 text-sm text-tertiary">Amenities at The Meridian, Tower A — directions from unit W001.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

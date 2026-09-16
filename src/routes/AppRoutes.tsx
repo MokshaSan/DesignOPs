@@ -3,6 +3,7 @@ import { RoleLayout } from "@/components/layout/RoleLayout";
 import { Landing } from "@/pages/Landing";
 import { Login } from "@/pages/Login";
 import { VisitorPass } from "@/pages/visitor/VisitorPass";
+import { VisitorRequest } from "@/pages/visitor/VisitorRequest";
 
 import { ResidentDashboard } from "@/pages/resident/Dashboard";
 import { ResidentScenes } from "@/pages/resident/Scenes";
@@ -32,6 +33,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/visitor/request" element={<VisitorRequest />} />
       <Route path="/visitor/pass/:id" element={<VisitorPass />} />
 
       <Route path="/resident" element={<RoleLayout role="resident" />}>

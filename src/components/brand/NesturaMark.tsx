@@ -1,30 +1,60 @@
 import { cx } from "@/lib/cx";
 
-interface NesturaMarkProps {
-  size?: number;
-  rounded?: string;
+const LOGO = "/brand/nestura-logo-clear.png";
+
+export function NesturaLockup({
+  height = 40,
+  onDark = false,
+  className,
+}: {
+  height?: number;
+  onDark?: boolean;
   className?: string;
+}) {
+  if (onDark) {
+    return (
+      <div className={cx("flex items-center gap-2.5", className)}>
+        <div className="shrink-0 overflow-hidden" style={{ height, width: height }}>
+          <img src={LOGO} alt="" className="h-full w-auto max-w-none object-cover object-left" />
+        </div>
+        <div className="leading-tight">
+          <p className="font-semibold tracking-tight text-white" style={{ fontSize: Math.max(15, height * 0.4) }}>
+            Nestura
+          </p>
+          <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-white/70">Smart Living OS</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={LOGO}
+      alt="Nestura Smart Living OS"
+      className={cx("w-auto object-contain object-left", className)}
+      style={{ height }}
+    />
+  );
 }
 
-/**
- * The Nestura brand mark — a house-and-signal glyph on a fixed blue->teal
- * gradient badge. Recreated as SVG (rather than the source PNG) so it stays
- * crisp at favicon/sidebar sizes and adapts to any background.
- */
-export function NesturaMark({ size = 36, rounded = "rounded-xl", className }: NesturaMarkProps) {
+export function NesturaMark({ size = 36, className }: { size?: number; className?: string }) {
   return (
-    <div
-      className={cx("brand-mark flex shrink-0 items-center justify-center text-white", rounded, className)}
-      style={{ width: size, height: size }}
-    >
-      <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M4 12.5 12 5l8 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M6 11v8h5v-5h2v5h5v-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M14.5 8.2a4.2 4.2 0 0 1 3 1.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M15.5 6.4a6.6 6.6 0 0 1 4.7 1.95" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.75" />
-      </svg>
+    <div className={cx("flex shrink-0 items-center justify-center overflow-hidden", className)} style={{ width: size, height: size }}>
+      <img src={LOGO} alt="" className="h-full w-auto max-w-none object-cover object-left" />
     </div>
   );
+}
+
+export function NesturaLogo({
+  height = 36,
+  inverted = false,
+  className,
+}: {
+  height?: number;
+  inverted?: boolean;
+  className?: string;
+}) {
+  return <NesturaLockup height={height} onDark={inverted} className={className} />;
 }
 
 export function NesturaWordmark({ className, sub }: { className?: string; sub?: boolean }) {

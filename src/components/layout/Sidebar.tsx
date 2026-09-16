@@ -5,7 +5,7 @@ import { cx } from "@/lib/cx";
 import type { Role } from "@/types";
 import { useStore } from "@/store/useStore";
 import { TIER_LABEL } from "@/data/permissions";
-import { NesturaMark, NesturaWordmark } from "@/components/brand/NesturaMark";
+import { NesturaLogo } from "@/components/brand/NesturaMark";
 
 export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
   const items = NAV_CONFIG[role];
@@ -14,8 +14,7 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
       <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-        <NesturaMark size={36} className="shadow-glow" />
-        <NesturaWordmark sub />
+        <NesturaLogo height={36} />
       </div>
 
       <div className="px-4 pt-4">
@@ -49,7 +48,7 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
       <div className="border-t border-border p-4">
         <div className="rounded-xl bg-surface-raised p-3">
           <p className="text-xs font-semibold text-primary">The Meridian, Tower A</p>
-          <p className="mt-0.5 text-[11px] text-tertiary">Unit 12A · {role === "resident" ? TIER_LABEL[residentTier] : "—"}</p>
+          <p className="mt-0.5 text-[11px] text-tertiary">Unit {role === "resident" ? "W001" : "Tower A"} · {role === "resident" ? TIER_LABEL[residentTier] : "—"}</p>
         </div>
       </div>
     </aside>

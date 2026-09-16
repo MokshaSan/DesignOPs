@@ -13,10 +13,10 @@ import type {
 
 export const CURRENT_UNIT: Unit = {
   id: "12A",
-  label: "12A",
+  label: "W001",
   floor: 12,
   tower: "Tower A",
-  residentName: "Alex Perera",
+  residentName: "John Perera",
   tier: "owner",
 };
 

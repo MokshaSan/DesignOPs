@@ -40,7 +40,7 @@ export function ResidentDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-tertiary">
-          {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.id}
+          {CURRENT_UNIT.tower} · Unit {CURRENT_UNIT.label}
         </p>
         <h1 className="text-2xl font-bold text-primary md:text-3xl">
           {greeting()}, {CURRENT_UNIT.residentName.split(" ")[0]}

@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Clock, ScanLine, XCircle } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { PassQRCode } from "@/components/visitors/PassQRCode";
-import { NesturaMark } from "@/components/brand/NesturaMark";
+import { NesturaLockup } from "@/components/brand/NesturaMark";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { BackButton } from "@/components/ui/BackButton";
 import { CURRENT_UNIT } from "@/data/seed";
 
 function parseTimeToday(hhmm: string) {
@@ -59,6 +60,7 @@ export function VisitorPass() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg p-6 text-center">
         <div>
+          <BackButton to="/" className="mb-6" />
           <p className="text-lg font-semibold text-primary">Pass not found</p>
           <p className="mt-1 text-sm text-tertiary">This access pass doesn't exist or has been removed.</p>
         </div>
@@ -68,12 +70,15 @@ export function VisitorPass() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-bg bg-noise p-6">
+      <div className="mb-4 w-full max-w-sm">
+        <BackButton to="/" />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 text-center shadow-2xl"
+        className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 text-center shadow-soft"
       >
-        <NesturaMark size={44} className="mx-auto" />
+        <NesturaLockup height={44} className="mx-auto" />
         <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-tertiary">Nestura Smart Living</p>
         <h1 className="mt-1 text-lg font-bold text-primary">Visitor Access</h1>
 
@@ -81,7 +86,7 @@ export function VisitorPass() {
           <p className="text-xl font-semibold text-primary">{visitor.name}</p>
           <p className="text-sm capitalize text-tertiary">{visitor.type}</p>
           <p className="mt-1 text-xs text-tertiary">
-            {CURRENT_UNIT.tower} · Unit {visitor.unitId}
+            {CURRENT_UNIT.tower} · Unit {visitor.unitId === "12A" ? "W001" : visitor.unitId}
           </p>
         </div>
 
