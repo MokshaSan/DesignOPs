@@ -13,12 +13,12 @@ function groupedCode(code: string) {
 }
 
 export function AccessPassCard({ visitor }: { visitor: VisitorRequest }) {
-  const host = visitor.hostName ?? "Resident";
+  const host = visitor.hostName || `Unit ${visitor.unitId}`;
   const going = visitor.destination ?? `Tower A · Unit ${visitor.unitId}`;
   const why = visitor.purpose ?? PURPOSE[visitor.type];
 
   return (
-    <div className="relative w-full max-w-[380px] overflow-hidden rounded-[20px] bg-gradient-to-br from-[#2a1659] via-[#160c2e] to-[#07040f] p-6 text-left text-white shadow-[0_24px_60px_-20px_rgba(76,29,149,0.85)] aspect-[1.62/1]">
+    <div className="relative w-full max-w-[380px] overflow-hidden rounded-[20px] bg-gradient-to-br from-[#2a1659] via-[#160c2e] to-[#07040f] p-5 text-left text-white shadow-[0_24px_60px_-20px_rgba(76,29,149,0.85)]">
       <div className="pointer-events-none absolute -right-10 -top-16 h-40 w-40 rounded-full bg-violet-500/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 left-10 h-36 w-36 rounded-full bg-indigo-400/20 blur-3xl" />
 
