@@ -8,6 +8,7 @@
     "dev:web": "vite",
     "dev:api": "node server/index.js",
     "build": "tsc -b && vite build",
+    "vercel-build": "npx vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "seed:db": "node scripts/seed-db.mjs"
@@ -25,6 +26,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
+    "vite": "^5.4.8",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
