@@ -290,10 +290,18 @@ export const SEED_TICKETS: ServiceTicket[] = [
 ];
 
 export const SEED_INVOICES: Invoice[] = [
-  { id: "inv-sep", period: "September 2026", amount: 185000, currency: "LKR", dueDate: "25 Sep 2026", status: "due" },
-  { id: "inv-aug", period: "August 2026", amount: 185000, currency: "LKR", dueDate: "25 Aug 2026", status: "paid", method: "Sampath Pay" },
-  { id: "inv-jul", period: "July 2026", amount: 185000, currency: "LKR", dueDate: "25 Jul 2026", status: "paid", method: "Card ···· 4242" },
-  { id: "inv-svc", period: "Service charge Q3", amount: 42000, currency: "LKR", dueDate: "10 Aug 2026", status: "paid", method: "Bank transfer" },
+  { id: "inv-sep", period: "September 2026", amount: 185000, currency: "LKR", dueDate: "25 Sep 2026", status: "due", unitId: "12A", residentName: "Alex Perera", phone: "+94 71 234 5612" },
+  { id: "inv-aug", period: "August 2026", amount: 185000, currency: "LKR", dueDate: "25 Aug 2026", status: "paid", method: "Sampath Pay", paidAt: "22 Aug 2026, 09:14", unitId: "12A", residentName: "Alex Perera", phone: "+94 71 234 5612" },
+  { id: "inv-jul", period: "July 2026", amount: 185000, currency: "LKR", dueDate: "25 Jul 2026", status: "paid", method: "Card ···· 4242", paidAt: "24 Jul 2026, 18:40", unitId: "12A", residentName: "Alex Perera", phone: "+94 71 234 5612" },
+  { id: "inv-svc", period: "Service charge Q3", amount: 42000, currency: "LKR", dueDate: "10 Aug 2026", status: "paid", method: "Bank transfer", paidAt: "08 Aug 2026, 11:02", unitId: "12A", residentName: "Alex Perera", phone: "+94 71 234 5612" },
+  { id: "inv-8f-sep", period: "September 2026", amount: 162000, currency: "LKR", dueDate: "25 Sep 2026", status: "due", unitId: "8F", residentName: "Amara Silva", phone: "+94 77 812 3344" },
+  { id: "inv-8f-aug", period: "August 2026", amount: 162000, currency: "LKR", dueDate: "25 Aug 2026", status: "paid", method: "Online transfer", paidAt: "21 Aug 2026, 15:33", unitId: "8F", residentName: "Amara Silva", phone: "+94 77 812 3344" },
+  { id: "inv-18b-sep", period: "September 2026", amount: 210000, currency: "LKR", dueDate: "25 Sep 2026", status: "overdue", unitId: "18B", residentName: "Saman Liyanage", phone: "+94 76 554 9031" },
+  { id: "inv-18b-aug", period: "August 2026", amount: 210000, currency: "LKR", dueDate: "25 Aug 2026", status: "paid", method: "Cheque", paidAt: "26 Aug 2026, 10:20", unitId: "18B", residentName: "Saman Liyanage", phone: "+94 76 554 9031" },
+  { id: "inv-4c-sep", period: "September 2026", amount: 148000, currency: "LKR", dueDate: "25 Sep 2026", status: "due", unitId: "4C", residentName: "Ravi Perera", phone: "+94 70 991 2275" },
+  { id: "inv-9d-sep", period: "September 2026", amount: 175000, currency: "LKR", dueDate: "25 Sep 2026", status: "paid", method: "Nestura Pay", paidAt: "15 Sep 2026, 19:05", unitId: "9D", residentName: "Nadia Fernando", phone: "+94 72 445 7789" },
+  { id: "inv-14f-sep", period: "September 2026", amount: 195000, currency: "LKR", dueDate: "25 Sep 2026", status: "due", unitId: "14F", residentName: "Kavin Raj", phone: "+94 75 669 1420" },
+  { id: "inv-3c-sep", period: "September 2026", amount: 158000, currency: "LKR", dueDate: "25 Sep 2026", status: "paid", method: "Online transfer", paidAt: "14 Sep 2026, 08:47", unitId: "3C", residentName: "Meera Jayawardena", phone: "+94 78 320 6615" },
 ];
 
 export const SEED_NOTICES: Notice[] = [

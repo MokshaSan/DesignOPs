@@ -196,6 +196,10 @@ export interface Invoice {
   dueDate: string;
   status: "paid" | "due" | "overdue";
   method?: string;
+  paidAt?: string;
+  unitId?: string;
+  residentName?: string;
+  phone?: string;
 }
 
 export interface Notice {

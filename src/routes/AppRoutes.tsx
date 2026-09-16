@@ -28,6 +28,7 @@ import { OperatorVisitors } from "@/pages/operator/Visitors";
 import { OperatorBookings } from "@/pages/shared/Bookings";
 import { OperatorCommunity } from "@/pages/shared/Community";
 import { OperatorServices } from "@/pages/operator/Services";
+import { OperatorPayments } from "@/pages/operator/Payments";
 import { OperatorCCTV } from "@/pages/operator/CCTV";
 import { OperatorFloorPlan } from "@/pages/operator/FloorPlan";
 
@@ -73,6 +74,7 @@ export function AppRoutes() {
         <Route path="cctv" element={<OperatorCCTV />} />
         <Route path="floor-plan" element={<OperatorFloorPlan />} />
         <Route path="services" element={<OperatorServices />} />
+        <Route path="payments" element={<OperatorPayments />} />
       </Route>
 
       <Route path="/developer" element={<RoleLayout role="developer" />}>
