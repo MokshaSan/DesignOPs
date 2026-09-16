@@ -1,4 +1,5 @@
 import { Building2, Users, TrendingDown, TrendingUp, Activity, Info } from "lucide-react";
+import { Link } from "react-router-dom";
 import { StatTile } from "@/components/ui/StatTile";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { PROPERTIES } from "@/data/seed";
@@ -57,6 +58,16 @@ export function DeveloperDashboard() {
           <p className="mt-1 text-xs text-tertiary">This quarter, across all properties</p>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Collections snapshot</CardTitle>
+          <Link to="/developer/collections" className="text-xs font-medium text-brand-700 hover:underline dark:text-brand-400">
+            Open ledger
+          </Link>
+        </CardHeader>
+        <p className="text-sm text-secondary">Rent and service-charge status for occupied units, including Meridian 12A.</p>
+      </Card>
 
       <Card>
         <CardHeader>

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Thermometer, Lightbulb, Snowflake, Lock, Zap, ChevronRight, Sparkles, Info } from "lucide-react";
+import { Thermometer, Lightbulb, Lock, Zap, ChevronRight, Sparkles, Info, Wrench, CreditCard, Megaphone, CalendarClock, MessageSquareWarning } from "lucide-react";
 import { StatTile } from "@/components/ui/StatTile";
 import { AIInsightCard } from "@/components/ai/AIInsightCard";
 import { Button } from "@/components/ui/Button";
@@ -45,6 +45,26 @@ export function ResidentDashboard() {
         <h1 className="text-2xl font-bold text-primary md:text-3xl">
           {greeting()}, {CURRENT_UNIT.residentName.split(" ")[0]}
         </h1>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        {[
+          { to: "/resident/maintenance", label: "Maintenance", hint: "Submit work", icon: Wrench },
+          { to: "/resident/payments", label: "Payments", hint: "Rent & dues", icon: CreditCard },
+          { to: "/resident/complaints", label: "Complaints", hint: "Track tickets", icon: MessageSquareWarning },
+          { to: "/resident/community", label: "Community", hint: "Notices", icon: Megaphone },
+          { to: "/resident/bookings", label: "Bookings", hint: "Gym · BBQ · hall", icon: CalendarClock },
+        ].map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="group rounded-2xl border border-border bg-surface p-4 shadow-soft transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"
+          >
+            <item.icon size={18} className="text-brand-600" />
+            <p className="mt-3 text-sm font-semibold text-primary">{item.label}</p>
+            <p className="text-[11px] text-tertiary">{item.hint}</p>
+          </Link>
+        ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

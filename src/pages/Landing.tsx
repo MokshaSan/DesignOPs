@@ -1,102 +1,208 @@
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Building2, Home, Wrench, LineChart, QrCode, Moon, Sun } from "lucide-react";
-import { useStore } from "@/store/useStore";
+import {
+  Home,
+  Users,
+  Wrench,
+  Code2,
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+  Zap,
+  Activity,
+} from "lucide-react";
+import { NesturaLockup } from "@/components/brand/NesturaMark";
 import type { Role } from "@/types";
-import { cx } from "@/lib/cx";
 
-const CARDS: { role: Role; title: string; desc: string; icon: typeof Home; to: string }[] = [
-  { role: "resident", title: "Resident", desc: "Control your home, scenes, energy, and visitor access.", icon: Home, to: "/resident" },
-  { role: "operator", title: "Building Operator", desc: "Monitor devices, alerts, maintenance and services building-wide.", icon: Wrench, to: "/operator" },
-  { role: "developer", title: "Developer / Owner", desc: "Portfolio analytics, property configuration and ROI.", icon: LineChart, to: "/developer" },
+const AUDIENCES: { role: Role; title: string; hint: string; icon: typeof Home; to: string }[] = [
+  { role: "resident", title: "Resident", hint: "Your home", icon: Home, to: "/login?role=resident" },
+  { role: "visitor", title: "Visitor", hint: "Request access", icon: Users, to: "/visitor/request" },
+  { role: "operator", title: "Operator", hint: "Building ops", icon: Wrench, to: "/login?role=operator" },
+  { role: "developer", title: "Developer", hint: "Portfolio", icon: Code2, to: "/login?role=developer" },
 ];
+
+const FLOATING = [
+  { icon: ShieldCheck, label: "Smart Access", left: "3%", top: "22%", x: 28, duration: 18, delay: 0 },
+  { icon: Sparkles, label: "AI Automation", left: "82%", top: "18%", x: -22, duration: 20, delay: 2.4 },
+  { icon: Zap, label: "Energy Intelligence", left: "4%", top: "62%", x: 18, duration: 19, delay: 1.1 },
+  { icon: Activity, label: "Predictive Maintenance", left: "76%", top: "58%", x: -30, duration: 22, delay: 3.2 },
+  { icon: Users, label: "Visitor Pass", left: "8%", top: "38%", x: 14, duration: 17, delay: 4.5 },
+  { icon: Home, label: "Scenes", left: "88%", top: "36%", x: -16, duration: 21, delay: 0.6 },
+  { icon: Sparkles, label: "Ambient Light", left: "18%", top: "72%", x: 24, duration: 23, delay: 5.8 },
+  { icon: ShieldCheck, label: "Secure Entry", left: "70%", top: "28%", x: -20, duration: 16, delay: 7 },
+];
+
+const ease = [0.16, 1, 0.3, 1] as const;
 
 export function Landing() {
   const navigate = useNavigate();
-  const { setRole, theme, toggleTheme, visitors } = useStore();
-  const sampleVisitor = visitors.find((v) => v.status === "approved") ?? visitors[0];
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
-  function enter(role: Role, to: string) {
-    setRole(role);
+  useEffect(() => {
+    const html = document.documentElement;
+    const prevHtml = html.style.overflow;
+    const prevBody = document.body.style.overflow;
+    html.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
+  }, []);
+
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+
+    const idle =
+      "linear-gradient(180deg, #ffffff 0%, #e0e7ff 55%, #c7d2fe 100%)";
+    el.style.backgroundImage = idle;
+    el.style.filter = "drop-shadow(0 10px 28px rgba(0,0,0,0.45))";
+
+    const move = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      el.style.backgroundImage = `radial-gradient(circle 480px at ${x}% ${y}%, #ffffff 0%, #eef2ff 20%, #c7d2fe 45%, #a5b4fc 70%, #e0e7ff 100%)`;
+      el.style.filter = "drop-shadow(0 0 26px rgba(165,180,252,0.42)) drop-shadow(0 0 52px rgba(99,102,241,0.32))";
+    };
+
+    window.addEventListener("pointermove", move, { passive: true });
+    return () => window.removeEventListener("pointermove", move);
+  }, []);
+
+  function go(to: string) {
     navigate(to);
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-bg bg-noise">
-      <button
-        onClick={toggleTheme}
-        className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-secondary shadow-soft"
-      >
-        {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-      </button>
+    <div className="relative h-[100svh] overflow-hidden bg-black">
+      <div className="absolute inset-0 z-0">
+        <video className="h-full w-full object-cover" autoPlay muted loop playsInline preload="auto">
+          <source src="/media/nestura-hero.mp4" type="video/mp4" />
+        </video>
+        <div className="pointer-events-none absolute inset-0 bg-black/25" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-violet-800/30 via-purple-900/22 to-indigo-950/32" />
+      </div>
 
-      <div className="absolute inset-x-0 top-0 -z-10 h-[32rem] bg-gradient-to-b from-brand-100/60 via-transparent to-transparent dark:from-brand-900/30" />
+      <div className="pointer-events-none absolute inset-0 z-[5] overflow-hidden">
+        {FLOATING.map((f) => (
+          <motion.div
+            key={f.label}
+            className="absolute hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium tracking-wide text-white/70 backdrop-blur-sm md:flex"
+            style={{ left: f.left, top: f.top }}
+            initial={{ opacity: 0, x: 0, y: 10 }}
+            animate={{
+              opacity: [0, 0, 0.9, 0.9, 0],
+              x: [0, f.x * 0.4, f.x, f.x * 0.5, 0],
+              y: [10, -8, 6, -12, 10],
+            }}
+            transition={{ duration: f.duration, delay: f.delay, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <f.icon size={12} className="text-violet-300" />
+            {f.label}
+          </motion.div>
+        ))}
+      </div>
 
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center px-6 py-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow"
-        >
-          <Building2 size={28} />
-        </motion.div>
+      <div className="relative z-10 flex h-full flex-col px-5 pt-5 sm:px-8">
+        <header className="flex items-center">
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease }}
+            onClick={() => go("/")}
+            className="rounded-lg transition duration-300 hover:drop-shadow-[0_0_18px_rgba(139,92,246,0.85)]"
+            aria-label="Nestura"
+          >
+            <NesturaLockup height={56} onDark />
+          </motion.button>
+        </header>
 
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-5 text-sm font-semibold uppercase tracking-widest text-brand-700 dark:text-brand-400">
-          John Keells Properties
-        </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mt-2 max-w-2xl text-balance text-4xl font-bold text-primary md:text-5xl"
-        >
-          Smart Living OS
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-4 max-w-xl text-balance text-base text-secondary md:text-lg"
-        >
-          One connected platform for residents, building operators, and developers — with AI woven in from the
-          ground up. Prototype for The Meridian, Tower A.
-        </motion.p>
+        <div className="flex flex-1 flex-col items-center">
+          <div className="mt-[6vh] flex flex-col items-center text-center sm:mt-[7vh]">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.08, ease }}
+              className="flex flex-col items-center gap-3"
+            >
+              <span className="h-px w-16 bg-gradient-to-r from-blue-400 via-violet-400 to-transparent" />
+              <p className="text-[11px] font-medium uppercase tracking-[0.38em] text-white/70">
+                Precision&nbsp;&nbsp;/&nbsp;&nbsp;Access&nbsp;&nbsp;/&nbsp;&nbsp;Intelligence
+              </p>
+            </motion.div>
 
-        <div className="mt-12 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
-          {CARDS.map((c, i) => (
-            <motion.button
-              key={c.role}
+            <motion.h1
+              ref={titleRef}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.12, ease }}
+              className="font-display relative mt-4 cursor-default select-none text-[clamp(56px,12.5vw,168px)] font-semibold leading-none tracking-[0.16em] text-transparent outline-none [background-clip:text] [-webkit-background-clip:text]"
+            >
+              NESTURA
+            </motion.h1>
+          </div>
+
+          <div className="mt-auto flex w-full flex-col items-center pb-5 sm:pb-7">
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2, ease }}
+              className="rounded-full bg-black/40 px-5 py-2 text-center text-[15px] leading-relaxed text-white/90"
+            >
+              One intelligent layer for home, visitors,
+              <br className="hidden sm:block" /> operations and the portfolio.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.26, ease }}
+              className="mt-6 flex flex-col items-center gap-3 sm:flex-row"
+            >
+              <button
+                onClick={() => go("/login")}
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-violet-600 px-7 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_-10px_rgba(99,102,241,0.9)] transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                Enter Nestura <ArrowRight size={16} />
+              </button>
+              <button
+                onClick={() => go("/visitor/request")}
+                className="rounded-full border border-white/25 bg-white/5 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              >
+                Request a Visit
+              </button>
+            </motion.div>
+
+            <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 + i * 0.08 }}
-              whileHover={{ y: -4 }}
-              onClick={() => enter(c.role, c.to)}
-              className={cx(
-                "group flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center shadow-soft transition-colors hover:border-brand-300",
-              )}
+              transition={{ duration: 0.7, delay: 0.4, ease }}
+              className="relative mt-8 w-full max-w-6xl overflow-hidden rounded-[36px] border border-white/16 bg-black/45 px-3 py-4 sm:px-6 sm:py-5"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700 transition-transform group-hover:scale-110 dark:text-brand-900">
-                <c.icon size={22} />
+              <div className="relative z-10 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
+                {AUDIENCES.map((a) => (
+                  <button
+                    key={a.role}
+                    onClick={() => go(a.to)}
+                    className="flex items-center gap-4 rounded-2xl px-3 py-4 text-left transition-colors hover:bg-white/10"
+                  >
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-600 text-white">
+                      <a.icon size={20} />
+                    </span>
+                    <span>
+                      <span className="block text-[15px] font-semibold text-white">{a.title}</span>
+                      <span className="block text-xs text-white/55">{a.hint}</span>
+                    </span>
+                  </button>
+                ))}
               </div>
-              <p className="text-base font-semibold text-primary">{c.title}</p>
-              <p className="text-sm text-tertiary">{c.desc}</p>
-            </motion.button>
-          ))}
+            </motion.div>
+          </div>
         </div>
-
-        {sampleVisitor && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            onClick={() => navigate(`/visitor/pass/${sampleVisitor.id}`)}
-            className="mt-8 flex items-center gap-2 rounded-full border border-dashed border-border-strong px-4 py-2 text-xs font-medium text-tertiary hover:text-secondary"
-          >
-            <QrCode size={14} /> View a sample Visitor Pass instead
-          </motion.button>
-        )}
-
-        <p className="mt-16 text-xs text-tertiary">Design competition prototype · Not an official John Keells product</p>
       </div>
     </div>
   );

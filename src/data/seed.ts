@@ -4,9 +4,16 @@ import type {
   Automation,
   Device,
   EnergyPoint,
+  FacilityBooking,
+  FloorPlanAmenity,
+  FloorPlanUnit,
+  Invoice,
   MaintenanceItem,
+  Notice,
   Property,
+  ResidentTier,
   Scene,
+  ServiceTicket,
   Unit,
   VisitorRequest,
 } from "@/types";
@@ -246,4 +253,155 @@ export const PORTFOLIO_ENERGY = [
   { label: "Tower B", value: -9 },
   { label: "Cinnamon Grand", value: -18 },
   { label: "Ocean Heights", value: -6 },
+];
+
+export const SEED_TICKETS: ServiceTicket[] = [
+  {
+    id: "t-m1",
+    kind: "maintenance",
+    category: "Plumbing",
+    title: "Kitchen mixer dripping",
+    detail: "Cold tap drips overnight. Started after last week's pressure test.",
+    unitId: "12A",
+    residentName: "Alex Perera",
+    createdAt: "Yesterday, 19:12",
+    status: "in-progress",
+    priority: "medium",
+  },
+  {
+    id: "t-c1",
+    kind: "complaint",
+    category: "Noise",
+    title: "Late construction on floor 11",
+    detail: "Drilling after 9pm for the last two nights.",
+    unitId: "12A",
+    residentName: "Alex Perera",
+    createdAt: "2 days ago",
+    status: "open",
+    priority: "high",
+  },
+];
+
+export const SEED_INVOICES: Invoice[] = [
+  { id: "inv-sep", period: "September 2026", amount: 185000, currency: "LKR", dueDate: "25 Sep 2026", status: "due" },
+  { id: "inv-aug", period: "August 2026", amount: 185000, currency: "LKR", dueDate: "25 Aug 2026", status: "paid", method: "Sampath Pay" },
+  { id: "inv-jul", period: "July 2026", amount: 185000, currency: "LKR", dueDate: "25 Jul 2026", status: "paid", method: "Card ···· 4242" },
+  { id: "inv-svc", period: "Service charge Q3", amount: 42000, currency: "LKR", dueDate: "10 Aug 2026", status: "paid", method: "Bank transfer" },
+];
+
+export const SEED_NOTICES: Notice[] = [
+  {
+    id: "nt1",
+    title: "Pool closed Thursday 18:00–21:00",
+    body: "Scheduled filter replacement. Gym remains open.",
+    category: "outage",
+    postedAt: "Today, 09:40",
+    author: "Building Ops",
+  },
+  {
+    id: "nt2",
+    title: "Resident mixer · Sky Lounge",
+    body: "Friday 19:30. RSVP on the community board. Guest limit: 1 per unit.",
+    category: "event",
+    postedAt: "Yesterday",
+    author: "Building Ops",
+  },
+  {
+    id: "nt3",
+    title: "Visitor hours updated",
+    body: "Contractors after 20:00 now need operator countersign in Nestura.",
+    category: "policy",
+    postedAt: "12 Sep",
+    author: "Management",
+  },
+];
+
+export const FACILITIES = [
+  { id: "gym", name: "Gym", location: "Level 2" },
+  { id: "bbq", name: "BBQ Terrace", location: "Podium" },
+  { id: "hall", name: "Party Hall", location: "Level 3" },
+  { id: "pool", name: "Lap Pool", location: "Level 2" },
+];
+
+export const SEED_BOOKINGS: FacilityBooking[] = [
+  {
+    id: "bk1",
+    facilityId: "gym",
+    facilityName: "Gym",
+    date: "17 Sep",
+    slot: "07:00–08:00",
+    unitId: "12A",
+    residentName: "Alex Perera",
+    status: "confirmed",
+  },
+  {
+    id: "bk2",
+    facilityId: "bbq",
+    facilityName: "BBQ Terrace",
+    date: "20 Sep",
+    slot: "18:00–20:00",
+    unitId: "9D",
+    residentName: "N. Silva",
+    status: "confirmed",
+  },
+];
+
+const FP_RESIDENT_NAMES = [
+  "Amara Silva", "Ravi Perera", "Nadia Fernando", "Kavin Raj",
+  "Meera Jayawardena", "Ismail Khan", "Dilini Wijesinghe", "Samuel Rajkumar",
+  "Tharaka Fernando", "Zara Ahmed", "Dinesh Gunasekara", "Priya Sharma",
+  "Lakmal De Silva", "Farah Hussain", "Charith Wickramasinghe", "Nisha Mendis",
+  "Ruwan Bandara", "Saman Liyanage", "Fathima Nazar", "Kusal Samaraweera",
+  "Madhavi Perera", "Ashan Fernando", "Dilrukshi Alahapperuma", "Imran Mohamed",
+];
+
+const FP_TIERS: ResidentTier[] = ["owner", "occupier", "tenant"];
+
+function fpHash(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+export const SEED_FLOOR_UNITS: FloorPlanUnit[] = (() => {
+  const units: FloorPlanUnit[] = [];
+  for (let floor = 3; floor <= 20; floor++) {
+    ["A", "B", "C", "D"].forEach((letter) => {
+      const label = `${floor}${letter}`;
+      const hash = fpHash(label);
+      const occupied = hash % 5 !== 0;
+      units.push({
+        id: label,
+        levelCode: `L${floor}`,
+        label,
+        occupied,
+        residentName: occupied ? FP_RESIDENT_NAMES[hash % FP_RESIDENT_NAMES.length] : "",
+        tier: occupied ? FP_TIERS[(hash >> 3) % FP_TIERS.length] : "tenant",
+        devices: occupied ? 3 + (hash % 8) : 0,
+      });
+    });
+  }
+  return units;
+})();
+
+export const SEED_FLOOR_AMENITIES: FloorPlanAmenity[] = [
+  { id: "amenity-gym", name: "Fitness Center & Gym", levelCode: "L1", hours: "5:00 AM – 11:00 PM", status: "open" },
+  { id: "amenity-yoga", name: "Yoga & Wellness Studio", levelCode: "L1", hours: "6:00 AM – 9:00 PM", status: "open" },
+  { id: "amenity-kids", name: "Kids' Play Zone", levelCode: "L1", hours: "8:00 AM – 8:00 PM", status: "open" },
+  { id: "amenity-coworking", name: "Co-working Lounge", levelCode: "L1", hours: "6:00 AM – 12:00 AM", status: "open" },
+  { id: "amenity-business", name: "Business Center & Meeting Rooms", levelCode: "L2", hours: "8:00 AM – 8:00 PM", status: "open" },
+  { id: "amenity-guest-suites", name: "Guest Suites", levelCode: "L2", hours: "Reception required", status: "open" },
+  { id: "amenity-library", name: "Library Lounge", levelCode: "L2", hours: "9:00 AM – 9:00 PM", status: "open" },
+  { id: "amenity-concierge", name: "Main Lobby & Concierge", levelCode: "G", hours: "24 / 7", status: "open" },
+  { id: "amenity-mailroom", name: "Mailroom & Parcel Room", levelCode: "G", hours: "24 / 7 (staffed 8 AM – 8 PM)", status: "open" },
+  { id: "amenity-security", name: "Security Office", levelCode: "G", hours: "24 / 7", status: "open" },
+  { id: "amenity-resident-parking", name: "Resident Parking", levelCode: "B1", hours: "24 / 7", status: "open" },
+  { id: "amenity-storage", name: "Storage Lockers", levelCode: "B1", hours: "Access via card", status: "open" },
+  { id: "amenity-visitor-parking", name: "Visitor Parking", levelCode: "B2", hours: "24 / 7", status: "open" },
+  { id: "amenity-ev", name: "EV Charging Bay", levelCode: "B2", hours: "24 / 7", status: "open" },
+  { id: "amenity-pool", name: "Infinity Pool & Sundeck", levelCode: "R", hours: "6:00 AM – 10:00 PM", status: "open" },
+  { id: "amenity-sky-lounge", name: "Sky Lounge & BBQ Deck", levelCode: "R", hours: "4:00 PM – 12:00 AM", status: "open" },
+  { id: "amenity-observation", name: "Observation Terrace", levelCode: "R", hours: "6:00 AM – 10:00 PM", status: "open" },
 ];

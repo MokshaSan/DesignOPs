@@ -1,11 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { Building2 } from "lucide-react";
 import { NAV_CONFIG, ROLE_LABEL } from "@/routes/navConfig";
 import { getIcon } from "@/lib/icons";
 import { cx } from "@/lib/cx";
 import type { Role } from "@/types";
 import { useStore } from "@/store/useStore";
 import { TIER_LABEL } from "@/data/permissions";
+import { NesturaLockup } from "@/components/brand/NesturaMark";
 
 export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
   const items = NAV_CONFIG[role];
@@ -13,14 +13,8 @@ export function Sidebar({ role }: { role: Exclude<Role, "visitor"> }) {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
-      <div className="flex h-16 items-center gap-2.5 border-b border-border px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow">
-          <Building2 size={18} />
-        </div>
-        <div className="leading-tight">
-          <p className="text-sm font-bold text-primary">Smart Living</p>
-          <p className="text-[11px] font-medium text-tertiary">John Keells OS</p>
-        </div>
+      <div className="flex h-16 items-center border-b border-border px-4">
+        <NesturaLockup height={40} />
       </div>
 
       <div className="px-4 pt-4">

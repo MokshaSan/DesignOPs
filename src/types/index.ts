@@ -154,3 +154,67 @@ export interface ChatMessage {
   content: string;
   time: string;
 }
+
+export type TicketKind = "maintenance" | "complaint";
+export type TicketStatus = "open" | "in-progress" | "scheduled" | "resolved";
+
+export interface ServiceTicket {
+  id: string;
+  kind: TicketKind;
+  category: string;
+  title: string;
+  detail: string;
+  unitId: string;
+  residentName: string;
+  createdAt: string;
+  status: TicketStatus;
+  priority: "low" | "medium" | "high";
+}
+
+export interface Invoice {
+  id: string;
+  period: string;
+  amount: number;
+  currency: string;
+  dueDate: string;
+  status: "paid" | "due" | "overdue";
+  method?: string;
+}
+
+export interface Notice {
+  id: string;
+  title: string;
+  body: string;
+  category: "event" | "outage" | "policy" | "holiday";
+  postedAt: string;
+  author: string;
+}
+
+export interface FacilityBooking {
+  id: string;
+  facilityId: string;
+  facilityName: string;
+  date: string;
+  slot: string;
+  unitId: string;
+  residentName: string;
+  status: "confirmed" | "cancelled";
+}
+
+export interface FloorPlanUnit {
+  id: string;
+  levelCode: string;
+  label: string;
+  occupied: boolean;
+  residentName: string;
+  tier: ResidentTier;
+  devices: number;
+}
+
+export interface FloorPlanAmenity {
+  id: string;
+  name: string;
+  levelCode: string;
+  hours: string;
+  status: "open" | "maintenance" | "closed";
+}

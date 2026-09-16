@@ -6,6 +6,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Orbitron", "Inter", "ui-sans-serif", "sans-serif"],
       },
       colors: {
         bg: "rgb(var(--bg) / <alpha-value>)",

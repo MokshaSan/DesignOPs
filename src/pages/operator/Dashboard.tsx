@@ -8,12 +8,12 @@ import { ENERGY_WEEK } from "@/data/seed";
 import { Link } from "react-router-dom";
 
 export function OperatorDashboard() {
-  const { devices, visitors, maintenance, alerts } = useStore();
+  const { devices, visitors, maintenance, alerts, tickets } = useStore();
   const online = devices.filter((d) => d.status === "online").length;
   const warning = devices.filter((d) => d.status === "warning").length;
   const offline = devices.filter((d) => d.status === "offline").length;
   const activeVisitors = visitors.filter((v) => v.status === "approved" || v.status === "checked-in").length;
-  const openMaintenance = maintenance.filter((m) => m.status !== "resolved").length;
+  const openMaintenance = maintenance.filter((m) => m.status !== "resolved").length + tickets.filter((t) => t.status !== "resolved").length;
   const criticalAlerts = alerts.filter((a) => a.severity === "critical" && !a.acknowledged);
 
   return (
@@ -38,7 +38,7 @@ export function OperatorDashboard() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatTile label="Total Units" value="420" icon={Building2} tone="brand" />
         <StatTile label="Active Visitors" value={String(activeVisitors)} icon={Users} tone="success" />
-        <StatTile label="Open Maintenance" value={String(openMaintenance)} icon={Wrench} tone="warning" />
+        <StatTile label="Open work" value={String(openMaintenance)} icon={Wrench} tone="warning" />
         <StatTile label="Energy Today" value="2,481 kWh" icon={Zap} tone="brand" trend={{ value: "↓ 5% vs yesterday", positive: true }} />
       </div>
 

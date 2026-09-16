@@ -80,6 +80,10 @@ body,
   height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--text-primary));
@@ -110,10 +114,6 @@ body {
 .bg-noise {
   background-image: radial-gradient(rgb(var(--brand-500) / 0.08) 1px, transparent 1px);
   background-size: 22px 22px;
-}
-
-.text-balance {
-  text-wrap: balance;
 }
 
 .card-glow {

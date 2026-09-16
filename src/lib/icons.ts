@@ -30,6 +30,11 @@ import {
   QrCode,
   MapPin,
   Bot,
+  CalendarClock,
+  Megaphone,
+  CreditCard,
+  MessageSquareWarning,
+  LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
 
@@ -65,6 +70,11 @@ export const ICONS: Record<string, LucideIcon> = {
   QrCode,
   MapPin,
   Bot,
+  CalendarClock,
+  Megaphone,
+  CreditCard,
+  MessageSquareWarning,
+  LayoutGrid,
 };
 
 export function getIcon(name: string): LucideIcon {
