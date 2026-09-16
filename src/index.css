@@ -3,69 +3,81 @@
 @tailwind utilities;
 
 /*
-  Theme tokens, expressed as "R G B" triples so Tailwind's <alpha-value>
-  slash-opacity syntax works (see tailwind.config.js).
+  Nestura theme tokens, expressed as "R G B" triples so Tailwind's
+  <alpha-value> slash-opacity syntax works (see tailwind.config.js).
 
-  Light mode: indigo/purple brand, white surfaces, gray text.
-  Dark mode:  light-purple brand, near-black surface, dark-blue raised
+  Brand identity: blue -> teal gradient (from the Nestura mark). The
+  interactive "brand" ramp is a blue scale (buttons, active nav, links);
+  --logo-from/--logo-to are the fixed two-tone gradient used only for the
+  brand mark itself (logo badge, hero accents) and stay constant across
+  themes, the way a real logo would.
+
+  Light mode: blue brand, warm white surfaces, gray text.
+  Dark mode:  light sky-blue brand, near-black surface, dark-blue raised
               surfaces, near-white gray text.
 */
 :root {
   --bg: 250 250 252;
   --surface: 255 255 255;
-  --surface-raised: 255 255 255;
-  --border: 228 226 236;
-  --border-strong: 210 207 224;
+  --surface-raised: 252 252 254;
+  --border: 226 229 236;
+  --border-strong: 206 211 224;
 
-  --text-primary: 24 21 38;
-  --text-secondary: 82 78 105;
-  --text-tertiary: 132 128 153;
+  --text-primary: 17 22 34;
+  --text-secondary: 76 84 102;
+  --text-tertiary: 128 135 153;
 
-  --brand-50: 245 243 255;
-  --brand-100: 237 233 254;
-  --brand-200: 221 214 254;
-  --brand-300: 196 181 253;
-  --brand-400: 167 139 250;
-  --brand-500: 124 58 237;
-  --brand-600: 105 33 218;
-  --brand-700: 88 28 179;
-  --brand-800: 69 26 140;
-  --brand-900: 49 21 96;
+  --brand-50: 239 246 255;
+  --brand-100: 219 234 254;
+  --brand-200: 191 219 254;
+  --brand-300: 147 197 253;
+  --brand-400: 96 165 250;
+  --brand-500: 59 130 246;
+  --brand-600: 37 99 235;
+  --brand-700: 29 78 216;
+  --brand-800: 30 64 175;
+  --brand-900: 30 58 138;
 
-  --accent: 79 70 229;
+  --accent: 13 148 136;
   --success: 16 150 96;
   --warning: 217 119 6;
   --danger: 220 38 38;
+
+  --logo-from: 37 99 235;
+  --logo-to: 16 185 129;
 
   color-scheme: light;
 }
 
 .dark {
-  --bg: 10 9 20;
-  --surface: 17 16 31;
-  --surface-raised: 23 22 43;
-  --border: 40 39 66;
-  --border-strong: 58 56 92;
+  --bg: 8 10 16;
+  --surface: 14 17 27;
+  --surface-raised: 19 25 40;
+  --border: 32 40 58;
+  --border-strong: 48 58 80;
 
-  --text-primary: 245 244 250;
-  --text-secondary: 197 194 219;
-  --text-tertiary: 142 139 168;
+  --text-primary: 244 246 250;
+  --text-secondary: 190 196 212;
+  --text-tertiary: 136 144 165;
 
-  --brand-50: 49 21 96;
-  --brand-100: 69 26 140;
-  --brand-200: 88 28 179;
-  --brand-300: 124 58 237;
-  --brand-400: 167 139 250;
-  --brand-500: 196 181 253;
-  --brand-600: 216 204 253;
-  --brand-700: 233 225 253;
-  --brand-800: 237 233 254;
-  --brand-900: 245 243 255;
+  --brand-50: 30 58 138;
+  --brand-100: 30 64 175;
+  --brand-200: 29 78 216;
+  --brand-300: 37 99 235;
+  --brand-400: 59 130 246;
+  --brand-500: 96 165 250;
+  --brand-600: 147 197 253;
+  --brand-700: 191 219 254;
+  --brand-800: 219 234 254;
+  --brand-900: 239 246 255;
 
-  --accent: 129 140 248;
+  --accent: 45 212 191;
   --success: 52 211 153;
   --warning: 251 191 36;
   --danger: 248 113 113;
+
+  --logo-from: 59 130 246;
+  --logo-to: 52 211 153;
 
   color-scheme: dark;
 }
@@ -110,6 +122,10 @@ body {
 .bg-noise {
   background-image: radial-gradient(rgb(var(--brand-500) / 0.08) 1px, transparent 1px);
   background-size: 22px 22px;
+}
+
+.brand-mark {
+  background-image: linear-gradient(135deg, rgb(var(--logo-from)), rgb(var(--logo-to)));
 }
 
 .text-balance {

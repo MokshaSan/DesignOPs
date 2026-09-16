@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { NavLink } from "react-router-dom";
-import { X, Building2 } from "lucide-react";
+import { X } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { AIAssistantWidget } from "@/components/ai/AIAssistantWidget";
+import { NesturaMark } from "@/components/brand/NesturaMark";
 import { NAV_CONFIG } from "@/routes/navConfig";
 import { getIcon } from "@/lib/icons";
 import { cx } from "@/lib/cx";
@@ -45,10 +46,8 @@ export function AppShell({
             >
               <div className="flex h-16 items-center justify-between border-b border-border px-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-800 text-white dark:from-brand-300 dark:to-brand-200">
-                    <Building2 size={18} />
-                  </div>
-                  <p className="text-sm font-bold text-primary">Smart Living</p>
+                  <NesturaMark size={36} />
+                  <p className="text-sm font-bold text-primary">Nestura</p>
                 </div>
                 <button onClick={() => setMobileOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-lg text-tertiary">
                   <X size={18} />

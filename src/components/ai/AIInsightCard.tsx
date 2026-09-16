@@ -24,7 +24,7 @@ export function AIInsightCard({
       )}
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white shadow-glow dark:bg-brand-300">
+        <div className="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white shadow-glow">
           <Bot size={17} />
         </div>
         <div className="min-w-0 flex-1">

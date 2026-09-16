@@ -1,103 +1,281 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Building2, Home, Wrench, LineChart, QrCode, Moon, Sun } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Home,
+  Wrench,
+  LineChart,
+  QrCode,
+  Moon,
+  Sun,
+  Menu,
+  X,
+  ShieldCheck,
+  Sparkles,
+  Zap,
+  Activity,
+  Users,
+} from "lucide-react";
 import { useStore } from "@/store/useStore";
+import { NesturaMark } from "@/components/brand/NesturaMark";
 import type { Role } from "@/types";
 import { cx } from "@/lib/cx";
 
-const CARDS: { role: Role; title: string; desc: string; icon: typeof Home; to: string }[] = [
-  { role: "resident", title: "Resident", desc: "Control your home, scenes, energy, and visitor access.", icon: Home, to: "/resident" },
-  { role: "operator", title: "Building Operator", desc: "Monitor devices, alerts, maintenance and services building-wide.", icon: Wrench, to: "/operator" },
-  { role: "developer", title: "Developer / Owner", desc: "Portfolio analytics, property configuration and ROI.", icon: LineChart, to: "/developer" },
+const NAV_LINKS = ["Residents", "Operators", "Developers", "Visitors"];
+
+const AUDIENCES: { role: Role; title: string; desc: string; icon: typeof Home; to: string; cta: string }[] = [
+  { role: "resident", title: "Resident", desc: "Control your home, scenes, energy and visitor access from one place.", icon: Home, to: "/resident", cta: "Resident Login" },
+  { role: "operator", title: "Building Operator", desc: "Monitor devices, alerts, maintenance and access, building-wide.", icon: Wrench, to: "/operator", cta: "Building Operations" },
+  { role: "developer", title: "Developer", desc: "Portfolio analytics, energy trends and ROI across every property.", icon: LineChart, to: "/developer", cta: "Developer Portal" },
+];
+
+const BENEFITS = [
+  { icon: ShieldCheck, label: "Smart Access" },
+  { icon: Sparkles, label: "AI Automation" },
+  { icon: Zap, label: "Energy Intelligence" },
+  { icon: Activity, label: "Predictive Maintenance" },
+  { icon: Users, label: "Visitor Management" },
 ];
 
 export function Landing() {
   const navigate = useNavigate();
-  const { setRole, theme, toggleTheme, visitors } = useStore();
+  const { theme, toggleTheme, visitors } = useStore();
   const sampleVisitor = visitors.find((v) => v.status === "approved") ?? visitors[0];
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  function enter(role: Role, to: string) {
-    setRole(role);
-    navigate(to);
+  useEffect(() => {
+    document.body.classList.toggle("overflow-hidden", menuOpen);
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [menuOpen]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  function goToLogin(role: Role) {
+    navigate(`/login?role=${role}`);
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-bg bg-noise">
-      <button
-        onClick={toggleTheme}
-        className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-secondary shadow-soft"
-      >
-        {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-      </button>
+    <div className="min-h-screen bg-bg">
+      {/* ============ HERO ============ */}
+      <section className="relative flex h-[100svh] min-h-[640px] w-full flex-col overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          >
+            <source src="/media/nestura-hero.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-transparent" />
+        </div>
 
-      <div className="absolute inset-x-0 top-0 -z-10 h-[32rem] bg-gradient-to-b from-brand-100/60 via-transparent to-transparent dark:from-brand-900/30" />
+        <div className="relative z-10 flex flex-1 flex-col">
+          {/* Nav */}
+          <header className="mx-auto flex w-full max-w-6xl items-center gap-4 px-5 pt-6 md:px-8 md:pt-8">
+            <div className="flex items-center gap-2.5">
+              <NesturaMark size={34} />
+              <span className="text-base font-bold tracking-tight text-white">Nestura</span>
+            </div>
 
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center px-6 py-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-glow dark:from-brand-300 dark:to-brand-200"
-        >
-          <Building2 size={28} />
-        </motion.div>
+            <nav className="ml-10 hidden items-center gap-8 md:flex">
+              {NAV_LINKS.map((l) => (
+                <a key={l} href={`#${l.toLowerCase()}`} className="text-sm text-white/80 transition-opacity hover:opacity-70">
+                  {l}
+                </a>
+              ))}
+            </nav>
 
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-5 text-sm font-semibold uppercase tracking-widest text-brand-700 dark:text-brand-400">
-          John Keells Properties
-        </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mt-2 max-w-2xl text-balance text-4xl font-bold text-primary md:text-5xl"
-        >
-          Smart Living OS
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-4 max-w-xl text-balance text-base text-secondary md:text-lg"
-        >
-          One connected platform for residents, building operators, and developers — with AI woven in from the
-          ground up. Prototype for The Meridian, Tower A.
-        </motion.p>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                aria-label="Toggle theme"
+              >
+                {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+              </button>
+              <button
+                onClick={() => goToLogin("resident")}
+                className="hidden rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-neutral-900 transition-transform hover:-translate-y-0.5 sm:inline-flex"
+              >
+                Resident Login
+              </button>
+              <button
+                onClick={() => setMenuOpen(true)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm md:hidden"
+                aria-label="Open menu"
+              >
+                <Menu size={18} />
+              </button>
+            </div>
+          </header>
 
-        <div className="mt-12 grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
-          {CARDS.map((c, i) => (
-            <motion.button
-              key={c.role}
+          {/* Hero content */}
+          <div className="flex flex-1 flex-col items-center justify-center gap-6 px-5 pb-16 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+            >
+              <span className="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-neutral-900">New</span>
+              One platform for residents, visitors &amp; operations
+            </motion.div>
+
+            <motion.h1
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 + i * 0.08 }}
-              whileHover={{ y: -4 }}
-              onClick={() => enter(c.role, c.to)}
-              className={cx(
-                "group flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center shadow-soft transition-colors hover:border-brand-300",
-              )}
+              transition={{ duration: 0.7, delay: 0.05 }}
+              className="max-w-3xl text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-6xl"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-700 transition-transform group-hover:scale-110 dark:text-brand-900">
-                <c.icon size={22} />
+              The operating system<br className="hidden sm:block" /> for modern living.
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="max-w-xl text-balance text-base leading-relaxed text-white/80 md:text-lg"
+            >
+              Nestura unifies smart-home control, visitor access and building operations into one
+              intelligent layer — built for residents, operators and developers alike.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="mt-2 flex flex-wrap items-center justify-center gap-3"
+            >
+              <button
+                onClick={() => goToLogin("resident")}
+                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-transform hover:-translate-y-0.5"
+              >
+                Resident Login
+              </button>
+              {sampleVisitor && (
+                <button
+                  onClick={() => navigate(`/visitor/pass/${sampleVisitor.id}`)}
+                  className="rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                >
+                  Request a Visit
+                </button>
+              )}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Mobile menu overlay */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-neutral-950/98 px-8 backdrop-blur-md"
+            >
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="absolute right-5 top-6 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white"
+                aria-label="Close menu"
+              >
+                <X size={18} />
+              </button>
+              {NAV_LINKS.map((l, i) => (
+                <motion.a
+                  key={l}
+                  href={`#${l.toLowerCase()}`}
+                  onClick={() => setMenuOpen(false)}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.08 * i }}
+                  className="text-3xl font-medium text-white"
+                >
+                  {l}
+                </motion.a>
+              ))}
+              <motion.button
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 * NAV_LINKS.length }}
+                onClick={() => goToLogin("resident")}
+                className="mt-4 w-full max-w-xs rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-neutral-900"
+              >
+                Resident Login
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      {/* ============ AUDIENCE CARDS ============ */}
+      <section className="mx-auto w-full max-w-6xl px-5 py-20 md:px-8" id="residents">
+        <div className="mb-10 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Four audiences, one layer</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-primary md:text-4xl">Built for everyone in the building</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {AUDIENCES.map((c, i) => (
+            <motion.button
+              key={c.role}
+              id={c.role === "operator" ? "operators" : c.role === "developer" ? "developers" : undefined}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+              whileHover={{ y: -4 }}
+              onClick={() => goToLogin(c.role)}
+              className="group flex flex-col items-start gap-3 rounded-2xl border border-border bg-surface p-6 text-left shadow-soft transition-colors hover:border-brand-300"
+            >
+              <div className="brand-mark flex h-11 w-11 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-110">
+                <c.icon size={20} />
               </div>
               <p className="text-base font-semibold text-primary">{c.title}</p>
               <p className="text-sm text-tertiary">{c.desc}</p>
+              <span className="mt-1 text-xs font-semibold text-brand-600">{c.cta} →</span>
             </motion.button>
           ))}
         </div>
 
-        {sampleVisitor && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            onClick={() => navigate(`/visitor/pass/${sampleVisitor.id}`)}
-            className="mt-8 flex items-center gap-2 rounded-full border border-dashed border-border-strong px-4 py-2 text-xs font-medium text-tertiary hover:text-secondary"
-          >
-            <QrCode size={14} /> View a sample Visitor Pass instead
-          </motion.button>
-        )}
+        <div id="visitors" className="mt-6 rounded-2xl border border-dashed border-border-strong bg-surface-raised p-6 text-center">
+          <p className="text-sm font-semibold text-primary">Visiting someone at Nestura?</p>
+          <p className="mt-1 text-sm text-tertiary">No account needed — request access and track it in real time.</p>
+          {sampleVisitor && (
+            <button
+              onClick={() => navigate(`/visitor/pass/${sampleVisitor.id}`)}
+              className="mt-4 inline-flex items-center gap-2 rounded-full border border-border-strong px-5 py-2.5 text-sm font-semibold text-secondary hover:bg-surface"
+            >
+              <QrCode size={14} /> View a sample Visitor Pass
+            </button>
+          )}
+        </div>
+      </section>
 
-        <p className="mt-16 text-xs text-tertiary">Design competition prototype · Not an official John Keells product</p>
-      </div>
+      {/* ============ BENEFITS STRIP ============ */}
+      <section className="border-y border-border bg-surface-raised py-12">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-6 px-5 md:px-8">
+          {BENEFITS.map((b) => (
+            <div key={b.label} className="flex items-center gap-2.5 text-secondary">
+              <b.icon size={17} className="text-brand-600" />
+              <span className="text-sm font-medium">{b.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="py-10 text-center">
+        <p className="text-xs text-tertiary">Design prototype · Nestura is a fictional platform built for a design competition</p>
+      </footer>
     </div>
   );
 }

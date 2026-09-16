@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { RoleLayout } from "@/components/layout/RoleLayout";
 import { Landing } from "@/pages/Landing";
+import { Login } from "@/pages/Login";
 import { VisitorPass } from "@/pages/visitor/VisitorPass";
 
 import { ResidentDashboard } from "@/pages/resident/Dashboard";
@@ -9,6 +10,7 @@ import { ResidentAutomation } from "@/pages/resident/Automation";
 import { ResidentEnergy } from "@/pages/resident/Energy";
 import { ResidentAccess } from "@/pages/resident/Access";
 import { ResidentVisitors } from "@/pages/resident/Visitors";
+import { ResidentFacilities } from "@/pages/resident/Facilities";
 import { ResidentNotifications } from "@/pages/resident/Notifications";
 import { ResidentProfile } from "@/pages/resident/Profile";
 
@@ -17,6 +19,7 @@ import { OperatorDevices } from "@/pages/operator/Devices";
 import { OperatorAlerts } from "@/pages/operator/Alerts";
 import { OperatorMaintenance } from "@/pages/operator/Maintenance";
 import { OperatorVisitors } from "@/pages/operator/Visitors";
+import { OperatorCCTV } from "@/pages/operator/CCTV";
 import { OperatorServices } from "@/pages/operator/Services";
 
 import { DeveloperDashboard } from "@/pages/developer/Dashboard";
@@ -28,6 +31,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/visitor/pass/:id" element={<VisitorPass />} />
 
       <Route path="/resident" element={<RoleLayout role="resident" />}>
@@ -37,6 +41,7 @@ export function AppRoutes() {
         <Route path="energy" element={<ResidentEnergy />} />
         <Route path="access" element={<ResidentAccess />} />
         <Route path="visitors" element={<ResidentVisitors />} />
+        <Route path="facilities" element={<ResidentFacilities />} />
         <Route path="notifications" element={<ResidentNotifications />} />
         <Route path="profile" element={<ResidentProfile />} />
       </Route>
@@ -47,6 +52,7 @@ export function AppRoutes() {
         <Route path="alerts" element={<OperatorAlerts />} />
         <Route path="maintenance" element={<OperatorMaintenance />} />
         <Route path="visitors" element={<OperatorVisitors />} />
+        <Route path="cctv" element={<OperatorCCTV />} />
         <Route path="services" element={<OperatorServices />} />
       </Route>
 

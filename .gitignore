@@ -2,6 +2,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.tsbuild
+*.tsbuildinfo
 
 # env files (never commit secrets)
 .env

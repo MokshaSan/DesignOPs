@@ -15,6 +15,7 @@ export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
     { to: "/resident/energy", label: "Energy", icon: "Zap" },
     { to: "/resident/access", label: "Access", icon: "Fingerprint" },
     { to: "/resident/visitors", label: "Visitors", icon: "Users" },
+    { to: "/resident/facilities", label: "Facilities", icon: "MapPin" },
     { to: "/resident/notifications", label: "Notifications", icon: "Bell" },
     { to: "/resident/profile", label: "Profile", icon: "UserCircle" },
   ],
@@ -24,6 +25,7 @@ export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
     { to: "/operator/alerts", label: "Alerts", icon: "AlertTriangle" },
     { to: "/operator/maintenance", label: "Maintenance", icon: "Wrench" },
     { to: "/operator/visitors", label: "Visitors", icon: "Users" },
+    { to: "/operator/cctv", label: "CCTV", icon: "Camera" },
     { to: "/operator/services", label: "Services", icon: "Briefcase" },
   ],
   developer: [
