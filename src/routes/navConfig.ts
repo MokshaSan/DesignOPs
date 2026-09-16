@@ -23,6 +23,7 @@ export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
     { to: "/resident/bookings", label: "Bookings", icon: "CalendarClock" },
     { to: "/resident/facilities", label: "Facilities", icon: "MapPin" },
     { to: "/resident/notifications", label: "Notifications", icon: "Bell" },
+    { to: "/resident/system", label: "How Nestura works", icon: "Info" },
     { to: "/resident/profile", label: "Profile", icon: "UserCircle" },
   ],
   operator: [
@@ -37,6 +38,7 @@ export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
     { to: "/operator/floor-plan", label: "Floor Plan", icon: "LayoutGrid" },
     { to: "/operator/services", label: "Services", icon: "Briefcase" },
     { to: "/operator/payments", label: "Payments", icon: "CreditCard" },
+    { to: "/operator/system", label: "How Nestura works", icon: "Info" },
   ],
   developer: [
     { to: "/developer", label: "Portfolio", icon: "LayoutDashboard", end: true },
@@ -44,6 +46,7 @@ export const NAV_CONFIG: Record<Exclude<Role, "visitor">, NavItem[]> = {
     { to: "/developer/properties", label: "Properties", icon: "Building2" },
     { to: "/developer/collections", label: "Collections", icon: "CreditCard" },
     { to: "/developer/configuration", label: "Configuration", icon: "Settings" },
+    { to: "/developer/system", label: "How Nestura works", icon: "Info" },
   ],
 };
 

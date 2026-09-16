@@ -41,7 +41,7 @@ function CameraTile({ cam, onOpen }: { cam: Camera; onOpen: () => void }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-danger" />
           </span>
-          Live
+          Simulated
         </span>
       ) : (
         <span className="absolute left-2.5 top-2.5 rounded-full bg-black/60 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/50">
@@ -68,7 +68,9 @@ export function OperatorCCTV() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary">CCTV</h1>
-          <p className="mt-1 text-sm text-tertiary">{liveCount} of {CAMERAS.length} cameras live across Tower A.</p>
+          <p className="mt-1 text-sm text-tertiary">
+            Simulated cameras — {liveCount} of {CAMERAS.length} placeholder tiles. No real video is captured or stored.
+          </p>
         </div>
         <Badge tone="neutral" className="gap-2">
           <ShieldAlert size={12} /> Building Operations access only — simulated feeds
@@ -100,7 +102,7 @@ export function OperatorCCTV() {
               </div>
               {selected.status === "live" && (
                 <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
-                  <span className="h-1.5 w-1.5 rounded-full bg-danger" /> Live
+                  <span className="h-1.5 w-1.5 rounded-full bg-danger" /> Simulated
                 </span>
               )}
             </div>

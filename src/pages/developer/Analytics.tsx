@@ -8,6 +8,7 @@ import { LiveAISuggestion } from "@/components/ai/LiveAISuggestion";
 import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 import { ADOPTION_DATA, ENERGY_WEEK, PORTFOLIO_ENERGY } from "@/data/seed";
 import { useAIAnalytics } from "@/hooks/useAI";
+import { nesturaSourceTitle } from "@/lib/aiLabel";
 import { useStore } from "@/store/useStore";
 
 export function DeveloperAnalytics() {
@@ -29,7 +30,9 @@ export function DeveloperAnalytics() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Analytics</h1>
-        <p className="mt-1 text-sm text-tertiary">Live Nestura AI over adoption, energy, devices, and visitor flow.</p>
+        <p className="mt-1 text-sm text-tertiary">
+          Nestura over live app state. Energy series below are a seed profile, not meters.
+        </p>
       </div>
 
       <LiveAISuggestion />
@@ -42,7 +45,7 @@ export function DeveloperAnalytics() {
       )}
 
       {ai && (
-        <AIInsightCard title={`Portfolio AI · ${ai.source}`}>
+        <AIInsightCard title={nesturaSourceTitle(ai.source, "Portfolio")}>
           <p className="font-medium text-primary">{ai.headline}</p>
           <ul className="mt-2 list-disc space-y-1 pl-4">
             {(ai.bullets || []).map((b) => (

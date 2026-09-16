@@ -253,7 +253,7 @@ export function SceneBuilderModal({ open, onClose }: { open: boolean; onClose: (
               <h3 className="text-base font-semibold text-primary">{result.name}</h3>
             )}
             <Badge tone={result.source === "ai" ? "brand" : "neutral"}>
-              <Sparkles size={11} /> {result.source === "ai" ? "AI" : "Local"}
+              <Sparkles size={11} /> {result.source === "ai" ? "live model" : "fallback (local)"}
             </Badge>
           </div>
 

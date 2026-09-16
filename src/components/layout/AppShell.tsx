@@ -5,6 +5,8 @@ import { X } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { NesturaLockup } from "@/components/brand/NesturaMark";
+import { SimulationBanner } from "@/components/system/SimulationBanner";
+import { AiHealthChip } from "@/components/system/AiHealthChip";
 import { NAV_CONFIG } from "@/routes/navConfig";
 import { getIcon } from "@/lib/icons";
 import { cx } from "@/lib/cx";
@@ -79,7 +81,13 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setMobileOpen(true)} title={title} />
         <main className="flex-1 overflow-y-auto bg-noise">
-          <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8">{children}</div>
+          <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8">
+            <SimulationBanner />
+            <div className="mb-4">
+              <AiHealthChip />
+            </div>
+            {children}
+          </div>
         </main>
       </div>
     </div>

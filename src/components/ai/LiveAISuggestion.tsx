@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Loader2, Sparkles } from "lucide-react";
 import { AIInsightCard } from "@/components/ai/AIInsightCard";
 import { Button } from "@/components/ui/Button";
-import { useStore } from "@/store/useStore";
+import { useStore, useResidentScenes } from "@/store/useStore";
+import { nesturaSourceTitle } from "@/lib/aiLabel";
+import { matchSceneForAutomation } from "@/lib/matchScene";
+import { triggerFromText } from "@/components/ai/AIAutomationCard";
+import { useToastStore } from "@/store/toastStore";
 
 function liveSuggestion(input: {
   role: string;
@@ -31,7 +36,9 @@ function liveSuggestion(input: {
 }
 
 export function LiveAISuggestion() {
-  const { role, activityLog, devices, visitors, alerts } = useStore();
+  const navigate = useNavigate();
+  const { role, activityLog, devices, visitors, alerts, accountUnitId, addAutomation } = useStore();
+  const scenes = useResidentScenes();
   const payload = {
     role,
     activityLog: activityLog.slice(0, 12),
@@ -75,13 +82,44 @@ export function LiveAISuggestion() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, alerts.length, visitors.length]);
 
+  function turnIntoAutomation() {
+    const scene = matchSceneForAutomation(scenes, text, text, text);
+    if (!scene) {
+      useToastStore.getState().pushToast({ title: "Create a scene first", body: "Automations run a scene on this unit.", tone: "warning" });
+      return;
+    }
+    addAutomation({
+      id: `auto-${Math.random().toString(36).slice(2, 9)}`,
+      name: "From live suggestion",
+      enabled: true,
+      trigger: triggerFromText(text),
+      extraConditions: [text],
+      sceneId: scene.id,
+      aiSuggested: true,
+      unitId: accountUnitId,
+    });
+    useToastStore.getState().pushToast({
+      title: "Automation saved",
+      body: `Will run “${scene.name}”. Open Automation to toggle or Run.`,
+      tone: "success",
+    });
+    if (role === "resident") navigate("/resident/automation");
+  }
+
   return (
     <AIInsightCard
-      title={`Live AI suggestion · ${source}`}
+      title={nesturaSourceTitle(source, "Live suggestion")}
       actions={
-        <Button size="sm" variant="ghost" onClick={() => setEditing((v) => !v)}>
-          {editing ? "Done" : "Edit suggestion"}
-        </Button>
+        <>
+          {role === "resident" && (
+            <Button size="sm" onClick={turnIntoAutomation} disabled={loading}>
+              <Sparkles size={13} /> Turn this into an automation
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" onClick={() => setEditing((v) => !v)}>
+            {editing ? "Done" : "Edit suggestion"}
+          </Button>
+        </>
       }
     >
       {loading ? (

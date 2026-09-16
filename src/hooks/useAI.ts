@@ -7,8 +7,9 @@ async function post<T>(url: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`AI request failed: ${res.status}`);
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error || `AI request failed: ${res.status}`);
+  return data as T;
 }
 
 export interface AISceneResult {

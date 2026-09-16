@@ -35,6 +35,7 @@ import {
   CreditCard,
   MessageSquareWarning,
   LayoutGrid,
+  Info,
   type LucideIcon,
 } from "lucide-react";
 
@@ -75,6 +76,7 @@ export const ICONS: Record<string, LucideIcon> = {
   CreditCard,
   MessageSquareWarning,
   LayoutGrid,
+  Info,
 };
 
 export function getIcon(name: string): LucideIcon {

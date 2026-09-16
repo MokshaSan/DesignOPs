@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2, Sparkles, Play } from "lucide-react";
 import { AIInsightCard } from "@/components/ai/AIInsightCard";
 import { Button } from "@/components/ui/Button";
@@ -6,12 +7,14 @@ import { useAIAutomationSuggest } from "@/hooks/useAI";
 import { useStore, useResidentDevices, useResidentScenes } from "@/store/useStore";
 import type { AutomationCondition } from "@/types";
 import { useToastStore } from "@/store/toastStore";
+import { nesturaSourceTitle } from "@/lib/aiLabel";
+import { matchSceneForAutomation } from "@/lib/matchScene";
 
 function uid() {
   return `auto-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function triggerFromText(text: string): AutomationCondition {
+export function triggerFromText(text: string): AutomationCondition {
   const t = text.toLowerCase();
   if (t.includes("arriv")) return { type: "arrival", label: text };
   if (t.includes("leav") || t.includes("depart")) return { type: "departure", label: text };
@@ -22,6 +25,8 @@ function triggerFromText(text: string): AutomationCondition {
 }
 
 export function AIAutomationCard({ context }: { context: string }) {
+  const navigate = useNavigate();
+  const role = useStore((s) => s.role);
   const activityLog = useStore((s) => s.activityLog);
   const accountUnitId = useStore((s) => s.accountUnitId);
   const addAutomation = useStore((s) => s.addAutomation);
@@ -37,6 +42,10 @@ export function AIAutomationCard({ context }: { context: string }) {
     source: string;
   } | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
+
+  const matched = suggestion
+    ? matchSceneForAutomation(scenes, suggestion.name, suggestion.trigger, suggestion.reasoning)
+    : undefined;
 
   useEffect(() => {
     let cancelled = false;
@@ -56,7 +65,7 @@ export function AIAutomationCard({ context }: { context: string }) {
 
   function accept() {
     if (!suggestion) return;
-    const scene = scenes[0];
+    const scene = matched;
     if (!scene) {
       useToastStore.getState().pushToast({ title: "No scene yet", body: "Create a scene first, then attach this automation.", tone: "warning" });
       return;
@@ -76,14 +85,15 @@ export function AIAutomationCard({ context }: { context: string }) {
     setSavedId(id);
     useToastStore.getState().pushToast({
       title: suggestion.name,
-      body: `Nestura automation saved for ${accountUnitId}. It will run ${scene.name}.`,
+      body: `Saved on Automation. It will run “${scene.name}” for ${accountUnitId}.`,
       tone: "success",
     });
+    if (role === "resident") navigate("/resident/automation");
   }
 
   return (
     <AIInsightCard
-      title={`Nestura automation · ${suggestion?.source || "ai"}`}
+      title={nesturaSourceTitle(suggestion?.source, "Nestura automation")}
       actions={
         suggestion && !savedId ? (
           <Button size="sm" onClick={accept} disabled={loading}>
@@ -104,7 +114,7 @@ export function AIAutomationCard({ context }: { context: string }) {
         <div className="space-y-1">
           <p className="font-medium text-primary">{suggestion.name}</p>
           <p className="text-sm text-secondary">
-            IF {suggestion.trigger} THEN run “{scenes[0]?.name || "your next scene"}”.
+            IF {suggestion.trigger} THEN run “{matched?.name || "a scene you create"}”.
           </p>
           <p className="text-xs text-tertiary">{suggestion.reasoning}</p>
         </div>

@@ -7,6 +7,7 @@ import { AIInsightCard } from "@/components/ai/AIInsightCard";
 import { AIAutomationCard } from "@/components/ai/AIAutomationCard";
 import { Button } from "@/components/ui/Button";
 import { useAIEnergyInsight } from "@/hooks/useAI";
+import { nesturaSourceTitle } from "@/lib/aiLabel";
 import { ENERGY_TODAY, ENERGY_WEEK } from "@/data/seed";
 import { useStore, useResidentDevices } from "@/store/useStore";
 
@@ -43,7 +44,9 @@ export function ResidentEnergy() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-primary">Energy</h1>
-        <p className="mt-1 text-sm text-tertiary">Track consumption and get AI-powered savings recommendations.</p>
+        <p className="mt-1 text-sm text-tertiary">
+          Seed profile (not a meter). Nestura still reads these kWh arrays plus your live AC state when you Apply Energy Saver.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -63,7 +66,7 @@ export function ResidentEnergy() {
 
       {insight && (
         <AIInsightCard
-          title="AI Energy Insight"
+          title={nesturaSourceTitle(insight.source, "Energy insight")}
           actions={
             <>
               <Button size="sm" onClick={applyEnergySaver} disabled={applied}>
@@ -98,12 +101,14 @@ export function ResidentEnergy() {
           <CardHeader>
             <CardTitle>Today's Usage</CardTitle>
           </CardHeader>
+          <p className="mb-3 text-xs text-tertiary">Seed hourly profile — not a live utility feed.</p>
           <EnergyChart data={ENERGY_TODAY} />
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>This Week</CardTitle>
           </CardHeader>
+          <p className="mb-3 text-xs text-tertiary">Seed weekly profile — not a live utility feed.</p>
           <EnergyChart data={ENERGY_WEEK} />
         </Card>
       </div>

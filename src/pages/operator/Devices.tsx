@@ -236,7 +236,9 @@ function DeviceDetailModal({ device, onClose }: { device: Device | null; onClose
           {prediction && (
             <div className="space-y-2 rounded-xl border border-brand-200 bg-brand-50 p-4 dark:border-brand-800/60 dark:bg-brand-900/20">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-400">AI Prediction</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-400">
+                  {prediction.source === "ai" ? "Nestura · live model" : "Nestura · fallback (no key / API error)"}
+                </p>
                 <Badge
                   tone={prediction.risk === "critical" || prediction.risk === "high" ? "danger" : prediction.risk === "medium" ? "warning" : "success"}
                   className="capitalize"

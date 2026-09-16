@@ -89,12 +89,15 @@ export function DeviceTile({ device }: { device: Device }) {
       )}
 
       {device.kind === "sensor" && (
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-tertiary">Battery {device.battery}%</span>
-          <span className={cx("font-semibold", device.status === "warning" ? "text-warning" : "text-success")}>
-            {device.status === "warning" ? "Needs attention" : "Healthy"}
-          </span>
-        </div>
+        <>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-tertiary">Battery {device.battery}%</span>
+            <span className={cx("font-semibold", device.status === "warning" ? "text-warning" : "text-success")}>
+              {device.status === "warning" ? "Needs attention" : "Healthy"}
+            </span>
+          </div>
+          <p className="text-[11px] text-tertiary">Simulated device — reading jitters every 9s. Not a physical sensor.</p>
+        </>
       )}
     </motion.div>
   );

@@ -20,6 +20,7 @@ import { ResidentBookings } from "@/pages/shared/Bookings";
 import { ResidentFacilities } from "@/pages/resident/Facilities";
 import { ResidentNotifications } from "@/pages/resident/Notifications";
 import { ResidentProfile } from "@/pages/resident/Profile";
+import { HowNesturaWorks } from "@/pages/shared/HowNesturaWorks";
 
 import { OperatorDashboard } from "@/pages/operator/Dashboard";
 import { OperatorDevices } from "@/pages/operator/Devices";
@@ -62,6 +63,7 @@ export function AppRoutes() {
         <Route path="bookings" element={<ResidentBookings />} />
         <Route path="facilities" element={<ResidentFacilities />} />
         <Route path="notifications" element={<ResidentNotifications />} />
+        <Route path="system" element={<HowNesturaWorks />} />
         <Route path="profile" element={<ResidentProfile />} />
       </Route>
 
@@ -77,6 +79,7 @@ export function AppRoutes() {
         <Route path="floor-plan" element={<OperatorFloorPlan />} />
         <Route path="services" element={<OperatorServices />} />
         <Route path="payments" element={<OperatorPayments />} />
+        <Route path="system" element={<HowNesturaWorks />} />
       </Route>
 
       <Route path="/developer" element={<RoleLayout role="developer" />}>
@@ -85,6 +88,7 @@ export function AppRoutes() {
         <Route path="properties" element={<DeveloperProperties />} />
         <Route path="collections" element={<DeveloperCollections />} />
         <Route path="configuration" element={<DeveloperConfiguration />} />
+        <Route path="system" element={<HowNesturaWorks />} />
       </Route>
 
       <Route path="*" element={<Landing />} />

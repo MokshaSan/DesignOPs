@@ -100,6 +100,9 @@ export function VisitorRequest() {
           <BackButton to="/" light />
           <NesturaLockup height={36} onDark />
         </header>
+        <p className="mt-4 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs text-white/70">
+          Demo simulation. This request writes to the Nestura app (and Supabase if configured). Indoor directions use Beacon nodes, not GPS.
+        </p>
 
         {submitted ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-12">
