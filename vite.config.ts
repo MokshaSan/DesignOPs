@@ -1,9 +1,21 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
+import { copyFileSync, existsSync } from "node:fs";
+
+function spa404() {
+  return {
+    name: "spa-404",
+    closeBundle() {
+      const src = path.resolve(__dirname, "dist/index.html");
+      const dest = path.resolve(__dirname, "dist/404.html");
+      if (existsSync(src)) copyFileSync(src, dest);
+    },
+  };
+}
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), spa404()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
