@@ -80,53 +80,55 @@ export function Login() {
       return;
     }
 
-    setNote((prev) => prev ?? "Use a seeded account, or run supabase/seed-users.sql in the SQL editor.");
+    setNote((prev) => prev ?? "Check your email and password and try again.");
     setLoading(false);
   }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-bg bg-noise p-6">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-lg">
         <BackButton to="/" className="mb-6" />
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} className="rounded-2xl border border-border bg-surface p-7 shadow-soft">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="rounded-3xl border border-border bg-surface px-10 py-12 shadow-soft sm:px-12 sm:py-14"
+        >
           <div className="flex flex-col items-center text-center">
-            <NesturaLockup height={46} />
-            <p className="mt-4 text-lg font-bold text-primary">Sign in</p>
-            <p className="mt-1 text-sm text-tertiary">One account for your role in the building.</p>
+            <NesturaLockup height={56} />
+            <p className="mt-6 text-2xl font-bold text-primary">Sign in</p>
+            <p className="mt-2 max-w-sm text-sm text-tertiary">One account for your role in the building.</p>
           </div>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-3">
+          <form onSubmit={onSubmit} className="mt-10 space-y-5">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-secondary">Email</label>
+              <label className="mb-2 block text-sm font-medium text-secondary">Email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="john.owner@example.com"
-                className="w-full rounded-lg border border-border bg-bg px-3 py-2.5 text-sm text-primary placeholder:text-tertiary focus:border-brand-400 focus:outline-none"
+                placeholder="Email"
+                className="w-full rounded-xl border border-border bg-bg px-4 py-3.5 text-base text-primary placeholder:text-tertiary focus:border-brand-400 focus:outline-none"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-secondary">Password</label>
+              <label className="mb-2 block text-sm font-medium text-secondary">Password</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-border bg-bg px-3 py-2.5 text-sm text-primary focus:border-brand-400 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-bg px-4 py-3.5 text-base text-primary focus:border-brand-400 focus:outline-none"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 size={15} className="animate-spin" /> : <LogIn size={15} />}
+            <Button type="submit" size="lg" className="mt-2 w-full" disabled={loading}>
+              {loading ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
               Sign In
             </Button>
           </form>
 
-          {note && <p className="mt-4 text-center text-[11px] leading-relaxed text-tertiary">{note}</p>}
-          <p className="mt-5 text-center text-[11px] leading-relaxed text-tertiary">
-            After seeding: john.owner@example.com, operator@example.com, developer@example.com · {DEMO_PASSWORD}
-          </p>
+          {note && <p className="mt-6 text-center text-sm leading-relaxed text-tertiary">{note}</p>}
         </motion.div>
       </div>
     </div>
